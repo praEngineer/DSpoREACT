@@ -9,7 +9,7 @@
         <name>JS</name>
         <operation_script><![CDATA[(function process( /*RESTAPIRequest*/ request, /*RESTAPIResponse*/ response) {
     var fileName = request.pathParams.file;
-    var currentRecord = "b7fa32c813da041032813092e144b0f5";
+    var currentRecord = "b7fa32c813da041032813092e144b0f5"; 
     var ar = new GlideRecord('sys_attachment');
     ar.addQuery('table_sys_id', currentRecord);
     ar.addQuery('file_name', fileName);
@@ -37,14 +37,14 @@
         <sys_created_by>andrew.pishchulin</sys_created_by>
         <sys_created_on>2020-01-07 20:57:44</sys_created_on>
         <sys_id>b7fa32c813da041032813092e144b0f5</sys_id>
-        <sys_mod_count>2</sys_mod_count>
+        <sys_mod_count>3</sys_mod_count>
         <sys_name>JS</sys_name>
-        <sys_package display_value="React App" source="x_elsr_react_app">f2ba728813da041032813092e144b01f</sys_package>
+        <sys_package display_value="DSpoReactApp" source="x_elsr_react_app">f2ba728813da041032813092e144b01f</sys_package>
         <sys_policy/>
-        <sys_scope display_value="React App">f2ba728813da041032813092e144b01f</sys_scope>
+        <sys_scope display_value="DSpoReactApp">f2ba728813da041032813092e144b01f</sys_scope>
         <sys_update_name>sys_ws_operation_b7fa32c813da041032813092e144b0f5</sys_update_name>
-        <sys_updated_by>andrew.pishchulin</sys_updated_by>
-        <sys_updated_on>2020-01-07 21:13:19</sys_updated_on>
+        <sys_updated_by>sfarkas</sys_updated_by>
+        <sys_updated_on>2023-03-30 18:10:56</sys_updated_on>
         <web_service_definition display_value="React App Container">74daba8813da041032813092e144b0e1</web_service_definition>
         <web_service_version/>
     </sys_ws_operation>
