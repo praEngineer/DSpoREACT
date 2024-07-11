@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_ui_page">
+    <sys_ui_page action="INSERT_OR_UPDATE">
+        <category>cms</category>
+        <client_script><![CDATA[	function getArowIntoLocalStorage() {
+			try {
+				var ga = new GlideAjax('ReactPOappScriptInclude');
+				ga.addParam('sysparm_name', 'getPOdata');
+				var sys_id = '5ff198b41b918a506c1036ef034bcb86';
+				ga.addParam('sys_id', sys_id);
+
+				ga.getXMLAnswer(function(response) {
+					if (!response) {
+						localStorage.setItem('poData', 'Invalid response');
+					} else {
+						// Escape single quotes in the response
+						var escapedResponse = response.replace(/'/g, "#!#");
+						
+						// Store the escaped response in Local Storage
+						localStorage.setItem('poData', escapedResponse);
+					}
+				});
+
+			} catch (error) {
+				localStorage.setItem('poData', 'caught ' + error.message);
+			}
+	}	
+	// getArowIntoLocalStorage();
+]]></client_script>
+        <description>similar to the index.html however, this implementation does not use the SN Table API, rather code in the Client Script (below) using GlideAjax</description>
+        <direct>false</direct>
+        <endpoint>x_elsr_react_app_GreenFormSNuserAbandoned.do</endpoint>
+        <html><![CDATA[<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DSpo with SN-REACT internal to SN</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <link rel="stylesheet" href="/api/x_elsr_react_app/container/js/index-BieVOJf7-css" />
+</head>
+<body>
+    <div id="root"></div>
+    <script>
+        $(document).ready(function() {
+            // Your code that depends on jQuery can go here
+            console.log("Document is ready!");
+
+            // Dynamically load the module script
+            var script = document.createElement('script');
+            script.type = 'module';
+            script.crossOrigin = 'anonymous';
+            script.src = '/api/x_elsr_react_app/container/js/index-8DfSb3uD-js';
+            document.body.appendChild(script);
+        });
+    </script>
+</body>
+</html>]]></html>
+        <name>GreenFormSNuserAbandoned</name>
+        <processing_script/>
+        <sys_class_name>sys_ui_page</sys_class_name>
+        <sys_created_by>sfarkas</sys_created_by>
+        <sys_created_on>2024-07-10 19:24:24</sys_created_on>
+        <sys_id>08ce8ffd1bd7461061a9a718624bcb58</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_name>GreenFormSNuserAbandoned</sys_name>
+        <sys_package display_value="DSpoReactApp" source="x_elsr_react_app">f2ba728813da041032813092e144b01f</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="DSpoReactApp">f2ba728813da041032813092e144b01f</sys_scope>
+        <sys_update_name>sys_ui_page_08ce8ffd1bd7461061a9a718624bcb58</sys_update_name>
+        <sys_updated_by>sfarkas</sys_updated_by>
+        <sys_updated_on>2024-07-10 19:58:30</sys_updated_on>
+    </sys_ui_page>
+</record_update>

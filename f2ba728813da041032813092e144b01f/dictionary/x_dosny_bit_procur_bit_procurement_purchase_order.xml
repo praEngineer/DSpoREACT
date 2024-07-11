@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="3ad96f32db623114841fecfc13961944" extends="task" label="BIT Procurement Purchase Order" max_length="40" name="x_dosny_bit_procur_bit_procurement_purchase_order" type="collection">
+        <element choice="1" label="Row 01 Type" max_length="40" name="x_elsr_react_app_row01type" type="choice">
+            <choice>
+                <element inactive_on_update="false" label="-- New choice --" value="-- New choice --"/>
+            </choice>
+        </element>
+    </element>
+</database>

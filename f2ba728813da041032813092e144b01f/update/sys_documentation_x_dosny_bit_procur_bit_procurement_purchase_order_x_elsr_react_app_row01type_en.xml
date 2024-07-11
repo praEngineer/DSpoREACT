@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_documentation element="x_elsr_react_app_row01type" label="Row 01 Type" language="en" table="x_dosny_bit_procur_bit_procurement_purchase_order">
+        <sys_documentation action="INSERT_OR_UPDATE">
+            <element>x_elsr_react_app_row01type</element>
+            <help/>
+            <hint/>
+            <label>Row 01 Type</label>
+            <language>en</language>
+            <name>x_dosny_bit_procur_bit_procurement_purchase_order</name>
+            <plural>Row 01 Types</plural>
+            <sys_class_name>sys_documentation</sys_class_name>
+            <sys_created_by>sfarkas</sys_created_by>
+            <sys_created_on>2024-04-12 18:29:24</sys_created_on>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_name>Row 01 Type</sys_name>
+            <sys_package display_value="DSpoReactApp" source="x_elsr_react_app">f2ba728813da041032813092e144b01f</sys_package>
+            <sys_policy/>
+            <sys_scope display_value="DSpoReactApp">f2ba728813da041032813092e144b01f</sys_scope>
+            <sys_update_name>sys_documentation_x_dosny_bit_procur_bit_procurement_purchase_order_x_elsr_react_app_row01type_en</sys_update_name>
+            <sys_updated_by>sfarkas</sys_updated_by>
+            <sys_updated_on>2024-04-12 18:29:24</sys_updated_on>
+            <url/>
+            <url_target/>
+        </sys_documentation>
+    </sys_documentation>
+</record_update>

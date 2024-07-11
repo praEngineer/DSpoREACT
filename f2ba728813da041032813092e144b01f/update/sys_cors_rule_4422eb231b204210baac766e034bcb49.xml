@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_cors_rule">
+    <sys_cors_rule action="INSERT_OR_UPDATE">
+        <delete>false</delete>
+        <domain>http://375it062368w1:5173</domain>
+        <exposed_headers>Origin, X-Requested With, Content-Type,Authorization,Access-Control-Allow-Origin,X-Content-Type-Options:no-sniff</exposed_headers>
+        <get>true</get>
+        <max_age>0</max_age>
+        <name>SEF Desktop</name>
+        <patch>false</patch>
+        <post>true</post>
+        <put>true</put>
+        <rest_api>now/table</rest_api>
+        <sys_class_name>sys_cors_rule</sys_class_name>
+        <sys_created_by>sfarkas</sys_created_by>
+        <sys_created_on>2024-03-01 14:26:43</sys_created_on>
+        <sys_id>4422eb231b204210baac766e034bcb49</sys_id>
+        <sys_mod_count>4</sys_mod_count>
+        <sys_name>SEF Desktop</sys_name>
+        <sys_package display_value="DSpoReactApp" source="x_elsr_react_app">f2ba728813da041032813092e144b01f</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="DSpoReactApp">f2ba728813da041032813092e144b01f</sys_scope>
+        <sys_update_name>sys_cors_rule_4422eb231b204210baac766e034bcb49</sys_update_name>
+        <sys_updated_by>sfarkas</sys_updated_by>
+        <sys_updated_on>2024-03-18 14:00:18</sys_updated_on>
+    </sys_cors_rule>
+</record_update>

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_ui_page">
+    <sys_ui_page action="DELETE">
+        <category>cms</category>
+        <client_script/>
+        <description>Purchase Order REACT form with selectable vendor</description>
+        <direct>false</direct>
+        <endpoint>x_elsr_react_app_UI Page With Selectable Vendor.do</endpoint>
+        <html><![CDATA[<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DSpo with SN-REACT and Selectable Vendor</title>
+    <script type="module" crossorigin="anonymous" src="/api/x_elsr_react_app/container_selvendor/index-fPNX4jIV-js"></script>
+    <link href="/api/x_elsr_react_app/container_selvendor/index-OmlcuyM4-css" />
+  </head>
+  <body>
+    <div id="root"></div>
+    
+  </body>
+</html>]]></html>
+        <name>UI Page With Selectable Vendor</name>
+        <processing_script/>
+        <sys_class_name>sys_ui_page</sys_class_name>
+        <sys_created_by>sfarkas</sys_created_by>
+        <sys_created_on>2024-04-04 18:11:38</sys_created_on>
+        <sys_id>d0ab97a21b11ca50baac766e034bcb3a</sys_id>
+        <sys_mod_count>8</sys_mod_count>
+        <sys_name>UI Page With Selectable Vendor</sys_name>
+        <sys_package display_value="DSpoReactApp" source="x_elsr_react_app">f2ba728813da041032813092e144b01f</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="DSpoReactApp">f2ba728813da041032813092e144b01f</sys_scope>
+        <sys_update_name>sys_ui_page_d0ab97a21b11ca50baac766e034bcb3a</sys_update_name>
+        <sys_updated_by>sfarkas</sys_updated_by>
+        <sys_updated_on>2024-04-04 19:33:50</sys_updated_on>
+    </sys_ui_page>
+    <sys_update_version action="INSERT_OR_UPDATE">
+        <action>DELETE</action>
+        <application display_value="DSpoReactApp">f2ba728813da041032813092e144b01f</application>
+        <file_path/>
+        <instance_id>d1068f71dbe79b08439ef70fbf96194a</instance_id>
+        <instance_name>nycdsdev1</instance_name>
+        <name>sys_ui_page_d0ab97a21b11ca50baac766e034bcb3a</name>
+        <payload>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;record_update table="sys_ui_page"&gt;&lt;sys_ui_page action="INSERT_OR_UPDATE"&gt;&lt;category&gt;cms&lt;/category&gt;&lt;client_script/&gt;&lt;description&gt;Purchase Order REACT form with selectable vendor&lt;/description&gt;&lt;direct&gt;false&lt;/direct&gt;&lt;endpoint&gt;x_elsr_react_app_UI Page With Selectable Vendor.do&lt;/endpoint&gt;&lt;html&gt;&lt;![CDATA[&lt;html lang="en"&gt;
+  &lt;head&gt;
+    &lt;meta charset="UTF-8" /&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;
+    &lt;title&gt;DSpo with SN-REACT and Selectable Vendor&lt;/title&gt;
+    &lt;script type="module" crossorigin="anonymous" src="/api/x_elsr_react_app/container_selvendor/index-fPNX4jIV-js"&gt;&lt;/script&gt;
+    &lt;link href="/api/x_elsr_react_app/container_selvendor/index-OmlcuyM4-css" /&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;div id="root"&gt;&lt;/div&gt;
+    
+  &lt;/body&gt;
+&lt;/html&gt;]]&gt;&lt;/html&gt;&lt;name&gt;UI Page With Selectable Vendor&lt;/name&gt;&lt;processing_script/&gt;&lt;sys_class_name&gt;sys_ui_page&lt;/sys_class_name&gt;&lt;sys_created_by&gt;sfarkas&lt;/sys_created_by&gt;&lt;sys_created_on&gt;2024-04-04 18:11:38&lt;/sys_created_on&gt;&lt;sys_id&gt;d0ab97a21b11ca50baac766e034bcb3a&lt;/sys_id&gt;&lt;sys_mod_count&gt;8&lt;/sys_mod_count&gt;&lt;sys_name&gt;UI Page With Selectable Vendor&lt;/sys_name&gt;&lt;sys_package display_value="DSpoReactApp" source="x_elsr_react_app"&gt;f2ba728813da041032813092e144b01f&lt;/sys_package&gt;&lt;sys_policy/&gt;&lt;sys_scope display_value="DSpoReactApp"&gt;f2ba728813da041032813092e144b01f&lt;/sys_scope&gt;&lt;sys_update_name&gt;sys_ui_page_d0ab97a21b11ca50baac766e034bcb3a&lt;/sys_update_name&gt;&lt;sys_updated_by&gt;sfarkas&lt;/sys_updated_by&gt;&lt;sys_updated_on&gt;2024-04-04 19:33:50&lt;/sys_updated_on&gt;&lt;/sys_ui_page&gt;&lt;/record_update&gt;</payload>
+        <payload_hash>-1152674674</payload_hash>
+        <record_name>UI Page With Selectable Vendor</record_name>
+        <reverted_from/>
+        <source>8eeddb2f1bec0210baac766e034bcb81</source>
+        <source_table>sys_update_set</source_table>
+        <state>previous</state>
+        <sys_created_by>sfarkas</sys_created_by>
+        <sys_created_on>2024-04-04 19:33:50</sys_created_on>
+        <sys_id>ccbe27261b51ca50baac766e034bcb07</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_recorded_at>18eaa9a6a490000001</sys_recorded_at>
+        <sys_updated_by>sfarkas</sys_updated_by>
+        <sys_updated_on>2024-04-04 19:33:50</sys_updated_on>
+        <type>UI Page</type>
+        <update_guid>04be27264b51ca500cd48c3a91e46207</update_guid>
+        <update_guid_history>04be27264b51ca500cd48c3a91e46207:-1152674674,45eca7ee9611ca50b87b94a03f50373c:1241084344,ea9ce3a2ca51ca50a6ca9ec03be4bd47:1133794662,1f6027666a11ca502a9b2a29fe4665d6:-461685880,cece57660f11ca50a1d766dfbe771663:-855946282,32ae1b269c11ca504eb6cc743c62114e:-233585569,b69e1b26e711ca50108c19ad54011c48:1524794622,143e1f269511ca506ce9282630b156bf:-1042410210,14eb9ba26211ca507c0ec0daf206de49:1818567391</update_guid_history>
+    </sys_update_version>
+    <sys_metadata_delete action="INSERT_OR_UPDATE">
+        <sys_audit_delete/>
+        <sys_class_name>sys_metadata_delete</sys_class_name>
+        <sys_created_by>sfarkas</sys_created_by>
+        <sys_created_on>2024-04-04 19:42:18</sys_created_on>
+        <sys_db_object display_value="" name="sys_ui_page">sys_ui_page</sys_db_object>
+        <sys_id>15d94ac499e844f48e0e8f86363fca91</sys_id>
+        <sys_metadata>d0ab97a21b11ca50baac766e034bcb3a</sys_metadata>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>UI Page With Selectable Vendor</sys_name>
+        <sys_package display_value="DSpoReactApp" source="x_elsr_react_app">f2ba728813da041032813092e144b01f</sys_package>
+        <sys_parent/>
+        <sys_policy/>
+        <sys_scope display_value="DSpoReactApp">f2ba728813da041032813092e144b01f</sys_scope>
+        <sys_scope_delete display_value="">90c089db0cdc4fc29475984a9e86e2f1</sys_scope_delete>
+        <sys_update_name>sys_ui_page_d0ab97a21b11ca50baac766e034bcb3a</sys_update_name>
+        <sys_update_version display_value="sys_ui_page_d0ab97a21b11ca50baac766e034bcb3a">ccbe27261b51ca50baac766e034bcb07</sys_update_version>
+        <sys_updated_by>sfarkas</sys_updated_by>
+        <sys_updated_on>2024-04-04 19:42:18</sys_updated_on>
+    </sys_metadata_delete>
+</record_update>

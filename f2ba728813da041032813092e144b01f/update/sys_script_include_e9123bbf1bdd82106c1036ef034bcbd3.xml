@@ -1,0 +1,489 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_elsr_react_app.ReactPOappScriptInclude</api_name>
+        <caller_access/>
+        <client_callable>true</client_callable>
+        <description>UI Action for Green Form needs to use the credentials of the person logged in.&#13;
+&#13;
+Caller Access Settings:&#13;
+None: This setting means there are no specific restrictions or tracking on who can call this Script Include. If "Accessible from" is set to allow client calls, then client scripts can use GlideAjax to call this Script Include without any additional checks or tracking. In the context of a UI Page using React and createAsyncThunk, this setting would allow the asynchronous actions defined by createAsyncThunk to call the Script Include without any restrictions, assuming those calls are properly authenticated and authorized by ServiceNow's standard security mechanisms.&#13;
+&#13;
+Caller Restriction: This setting adds an extra layer of security by restricting which scripts can call this Script Include. You can specify which roles are required to call the Script Include. If a UI Page's script or a createAsyncThunk action attempts to call this Script Include without the required roles, the call will be denied. This is useful for scenarios where the Script Include performs sensitive operations that should only be accessible by users with specific roles.&#13;
+&#13;
+Caller Tracking: This option enables logging of all calls to this Script Include. It helps in auditing and tracking the usage of Script Includes, especially those that are critical or could impact system performance. For a UI Page using React and createAsyncThunk, enabling caller tracking means that every call from the UI Page to the Script Include will be logged, providing visibility into how and when the Script Include is being used.&#13;
+&#13;
+Implications for UI Pages Using React and createAsyncThunk:&#13;
+None: The UI Page can freely make calls to the Script Include, provided other security checks are passed. This is straightforward and poses no additional development considerations.&#13;
+&#13;
+Caller Restriction: You must ensure that the users interacting with the UI Page have the necessary roles to invoke the Script Include. This could impact the design of your UI Page and the user experience, especially if roles restrict access to certain functionalities.&#13;
+&#13;
+Caller Tracking: While this does not directly impact the ability of the UI Page to call the Script Include, it's important to be aware that calls will be logged. This could be relevant for performance considerations and auditing purposes.</description>
+        <name>ReactPOappScriptInclude</name>
+        <script><![CDATA[var ReactPOappScriptInclude = Class.create();
+ReactPOappScriptInclude.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
+	getScope: function() {
+        return JSON.stringify(gs.getCurrentScopeName());
+    },
+	getExperiment: function () {
+		try {
+			var gr = new GlideRecord('x_dosny_bit_procur_commodity');
+			if(!gr){
+				rowData['error'] = 'gr not initialized for x_dosny_bit_procur_bit_procurement_purchase_order';
+				return JSON.stringify(rowData);				
+			}
+			else {
+				var sys_id = this.getParameter('sys_id');
+				var getRslt = gr.get(sys_id);
+				var rowData = {};
+				if(getRslt){
+					for (var key in gr) {
+						// Check if the key is a valid field and not a system property
+						if (gr[key] instanceof GlideElement) {
+							var grValue = gr.getValue(key);
+							if(grValue === null || grValue === ''){
+								rowData[key] ='';
+							}
+							else if(grValue.contains('http')){
+								rowData[key] =''; // url effectively means a value was not chosen from a reference table
+
+							}
+							else {
+								rowData[key] = gr.getValue(key); // Get the field's value
+							}
+						}
+					}
+				}
+				return JSON.stringify(rowData); // Convert the rowData object to JSON
+			}
+		}
+		catch(siErr){
+			return JSON.stringify(siErr.message + ' from getExperiment');
+		}
+
+	},
+
+	getExperiment2: function() {
+		var allVendors = {
+			snTableName: 'vendors',
+			appData:[], // Set appData to a serializable initial value (e.g., null)
+			status: 'idle', // | 'loading' | 'succeeded' | 'failed'
+			error: null,
+		};
+		var vendorData = {};
+		vendorData = {
+			'name': 'anything', // Assuming there's a 'name' field in your table
+			'sys_id': 'something' // sys_id is a standard field
+		};
+
+		allVendors.appData.push(vendorData);
+
+		vendorData = {
+			'name': 'anything else', // Assuming there's a 'name' field in your table
+			'sys_id': 'something else' // sys_id is a standard field
+		};
+
+		allVendors.appData.push(vendorData);
+
+		try{
+			var tableName = 'core_company';
+			var gr = new GlideRecord(tableName);
+			if(!gr){
+				allVendors.status = 'failed';
+				allVendors.error = 'No GlideRecord found';	
+				return JSON.stringify(allVendors); // Return a stringified JSON object		
+			}
+			//gr.addQuery('active', true);
+			gr.addQuery('vendor', true);
+			gr.orderBy('name'); // Order by the 'name' field alphabetically
+			gr.query();
+
+			var aName = '';
+			var aSysId = '';
+			var vendorCount  = 0;
+			while (gr.next()) {
+				// Construct an object with name and sys_id for each row
+				vendorCount++;
+				aName = gr.name.toString();
+				aSysId = gr.sys_id.toString();
+				vendorData = {
+					'name': aName, // Assuming there's a 'name' field in your table
+					'sys_id': aSysId, // sys_id is a standard field
+					'whichOne': vendorCount,
+				};
+
+				// Push the constructed object into appData
+				allVendors.appData.push(vendorData);
+			}
+
+			var tableDescriptor = new GlideTableDescriptor(tableName);
+			if(!tableDescriptor){
+				allVendors.snTableName = 'GlideTableDescriptor is not Valid';
+
+			}
+			else {
+				if (tableDescriptor.isValid()) {
+					allVendors.snTableName = 'tableDescriptor is Valid';
+				}				
+			}
+
+		}
+		catch(siErr){
+			vendorData = {
+				'name': 'problem gr', // Assuming there's a 'name' field in your table
+				'sys_id': siErr.message // sys_id is a standard field
+			};
+			allVendors.appData.push(vendorData);
+		}
+
+		// Update status based on the result
+		if (allVendors.appData.length > 0) {
+			allVendors.status = 'succeeded';
+		} else {
+			allVendors.status = 'failed';
+			allVendors.error = 'No active vendors found';
+		}
+
+
+
+		return JSON.stringify(allVendors); // Return a stringified JSON object
+	},
+
+	getPOdata: function() {
+		var rowData = {};
+
+		try {
+			var gr = new GlideRecord('x_dosny_bit_procur_bit_procurement_purchase_order');
+			if(!gr){
+				rowData['error'] = 'gr not initialized for x_dosny_bit_procur_bit_procurement_purchase_order';
+				return JSON.stringify(rowData);				
+			}
+			else {
+				var sys_id = this.getParameter('sys_id');
+				var getRslt = gr.get(sys_id); // returns true or falase
+				if (getRslt) {
+					for (var key in gr) {
+						if (gr[key] instanceof GlideElement) {
+							var grValue = gr.getValue(key);
+							if(grValue === null || grValue === ''){
+								rowData[key] ='';
+							}
+							else if(grValue.contains('http')){
+								rowData[key] =''; // url effectively means a value was not chosen from a reference table
+
+							}
+							else {
+								rowData[key] = gr.getValue(key); // Get the field's value
+							}
+						}
+					}
+					if(Object.keys(rowData).length < 1){
+						rowData['error'] = 'rowData is empty for ' + sys_id;
+						return JSON.stringify(rowData); 
+					}
+					return JSON.stringify(rowData); 
+				} else {
+					rowData['error'] = 'SN SI getPOdata Record not found for ' + sys_id;
+					return JSON.stringify(rowData);
+				}
+			}
+		}
+		catch (siErr){
+			rowData['error'] = 'caught ' + siErr.message;
+			return JSON.stringify(rowData);
+		}
+
+    },
+
+	putPOdata: function() {
+        var tableName = this.getParameter('table_name');
+        var sysId = this.getParameter('sys_id');
+        
+        if (!tableName || !sysId) {
+            return JSON.stringify({status: 'failure', message: 'Missing table_name or sys_id parameter'});
+        }
+        
+        var gr = new GlideRecord(tableName);
+        if (gr.get(sysId)) {
+            var params = this.request.getParameters();
+            for (var param in params) {
+                if (param !== 'table_name' && param !== 'sys_id' && param !== 'sysparm_name') {
+                    gr.setValue(param, params[param]);
+                }
+            }
+            gr.update();
+            return JSON.stringify({status: 'success', data: gr});
+        } else {
+            return JSON.stringify({status: 'failure', message: 'SN SI putPOdata Record not found (' + sysId + ')'});
+        }		
+	},
+
+	// getAnything: function() {
+	// 	return JSON.stringify({aStr: 'correct response from getAnything'});
+	// },
+    getAllVendorNames: function() {
+		var allVendors = {
+			snTableName: 'vendors',
+			appData:[], // Set appData to a serializable initial value (e.g., null)
+			status: 'idle', // | 'loading' | 'succeeded' | 'failed'
+			error: null,
+		};
+
+		var tableName = 'core_company';
+		// var tableDescriptor = new GlideTableDescriptor(tableName);
+		// java.lang.SecurityException: GlideTableDescriptor is not allowed in scoped applications
+
+		try{
+			var gr = new GlideRecord(tableName);
+			if(!gr){
+				allVendors.status = 'failed';
+				allVendors.error = 'No GlideRecord found';	
+				return JSON.stringify(allVendors); // Return a stringified JSON object		
+			}
+			// gr.addQuery('active', true);
+			gr.addQuery('vendor', true);
+			gr.orderBy('name'); // Order by the 'name' field alphabetically
+			gr.query();
+			var vendorData = {};
+			var aName = '';
+			var aSysId = '';
+			while (gr.next()) {
+				// Construct an object with name and sys_id for each row
+				try{
+					aName = gr.name.toString();
+					aSysId = gr.sys_id.toString();
+					vendorData = {
+						'name': aName, // Assuming there's a 'name' field in your table
+						'sys_id': aSysId // sys_id is a standard field
+					};
+				}
+				catch(siErr){
+					vendorData = {
+						'name': 'problem gr', // Assuming there's a 'name' field in your table
+						'sys_id': siErr.message // sys_id is a standard field
+					};
+				}
+				// Push the constructed object into appData
+				allVendors.appData.push(vendorData);
+			}
+
+			// Update status based on the result
+			if (allVendors.appData.length > 0) {
+				allVendors.status = 'succeeded';
+			} else {
+				allVendors.status = 'failed';
+				allVendors.error = 'No active vendors found';
+			}
+		}
+		catch (outerSIerr){
+			allVendors.status = 'failed';
+			allVendors.error = 'caught: ' + outerSIerr.message;
+		}
+
+		return JSON.stringify(allVendors); // Return a stringified JSON object
+	},
+
+	getVendorData: function() {
+		var rowData = {};
+
+		try {
+			var sys_id = this.getParameter('sys_id');
+			var gr = new GlideRecord('core_company');
+			if(!gr){
+				rowData['error'] = 'gr not initialized for core_company';
+				return JSON.stringify(rowData);				
+			}
+			// rowData['Col aSysID'] = 'Col ' + sys_id + '<br /><br />';
+			var getRslt = gr.get(sys_id); // returns true or falase
+			if (getRslt) {
+				// Iterate over all fields in the record
+				for (var key in gr) {
+					// Check if the key is a valid field and not a system property
+					if (gr[key] instanceof GlideElement) {
+						var grValue = gr.getValue(key);
+						if(grValue === null || grValue === ''){
+							rowData[key] ='';
+						}
+						else if(grValue.contains('http')){
+							rowData[key] ='anySysId'; // url effectively means a value was not chosen from a reference table
+
+						}
+						else {
+							rowData[key] = gr.getValue(key); // Get the field's value
+						}
+					}
+				}
+				if(Object.keys(rowData).length < 1){
+					return JSON.stringify({ error: 'rowData is empty for ' + sys_id });
+				}
+			} else {
+				rowData['error'] = 'SN SI getVendordata Record not found for ' + sys_id;
+			}
+		}
+		catch (error){
+			rowData['error'] = 'caught ' + error.message;
+		}
+		return JSON.stringify(rowData);
+	},
+	
+    getAllCommodityCodes: function() {
+		var allCommodityCodes = {
+			snTableName: 'commoditycodes',
+			appData:[], // Set appData to a serializable initial value (e.g., null)
+			status: 'idle', // | 'loading' | 'succeeded' | 'failed'
+			error: null,
+		};
+
+		var tableName = 'x_dosny_bit_procur_commodity';
+
+		try{
+			var step = 'first';
+			var gr = new GlideRecord(tableName);
+			gr.query('u_string_1','L1 4')
+			gr.orderBy('name'); // Order by the 'name' field alphabetically
+			gr.query();
+
+			step = 'second';
+			while (gr.next()) {
+				// Construct an object with name and sys_id for each row
+				step = 'second a';
+				var oneRow = {
+					name: gr.name.toString(), // Assuming there's a 'name' field in your table
+					code: gr.commodity_code.toString(),
+					sys_id: gr.sys_id.toString() // sys_id is a standard field
+				};
+				step = 'second b';
+
+				// Push the constructed object into appData
+				allCommodityCodes.appData.push(oneRow);
+
+				step = 'second c';
+
+
+			}
+			step = 'thrid';
+			// Update status based on the result
+			if (allCommodityCodes.appData.length > 0) {
+				allCommodityCodes.status = 'succeeded';
+			} else {
+				allCommodityCodes.status = 'failed';
+				allCommodityCodes.error = 'No commodity codes found';
+			}
+			step = 'fourth';
+		}
+		catch (error){
+			allCommodityCodes.status = 'failed';
+			allCommodityCodes.error = 'at step ' + step + ', it caught: ' + error.message;
+		}
+
+		return JSON.stringify(allCommodityCodes); // Return a stringified JSON object
+	},
+
+	getCommodityCodeData: function() {
+		var rowData = {};
+
+		try {
+			var sys_id = this.getParameter('sys_id');
+			var gr = new GlideRecord('x_dosny_bit_procur_commodity');
+			if(!gr){
+				rowData['error'] = 'gr not initialized for x_dosny_bit_procur_commodity';
+				return JSON.stringify(rowData);				
+			}
+			// rowData['Col aSysID'] = 'Col ' + sys_id + '<br /><br />';
+			var getRslt = gr.get(sys_id); // returns true or falase
+			if (getRslt) {
+				// Iterate over all fields in the record
+				for (var key in gr) {
+					// Check if the key is a valid field and not a system property
+					if (gr[key] instanceof GlideElement) {
+						var grValue = gr.getValue(key);
+						if(grValue === null || grValue === ''){
+							rowData[key] ='';
+						}
+						else if(grValue.contains('http')){
+							rowData[key] ='anySysId'; // url effectively means a value was not chosen from a reference table
+
+						}
+						else {
+							rowData[key] = gr.getValue(key); // Get the field's value
+						}
+					}
+				}
+				if(Object.keys(rowData).length < 1){
+					return JSON.stringify({ error: 'rowData is empty for ' + sys_id });
+				}
+			} else {
+				rowData['error'] = 'SN SI getCommodityCodeData Record not found for ' + sys_id;
+			}
+		}
+		catch (error){
+			rowData['error'] = 'caught ' + error.message;
+		}
+		return JSON.stringify(rowData);
+
+	},
+
+    getCredentials: function() {
+		/*
+			Retrieve User ID:
+			Use gs.getUserID() to get the current user's Sys ID.
+
+			Get User Record:
+			Fetch the user record from the sys_user table using the GlideRecord class.
+
+			Retrieve User Preferences:
+			Use gs.getUser().getPreference('user_credentials') to get the stored credentials from user preferences.
+
+			Encode Credentials:
+			Use GlideStringUtil.base64Encode(credentials) to encode the credentials in base64 format.
+
+			Return Encoded Credentials:
+			If credentials are found and encoded, return the encoded string.
+			Handle cases where credentials or user are not found.
+			By storing and retrieving the credentials in user preferences, you avoid using 
+			the restricted GlideEncrypter class and maintain secure handling of sensitive 
+			information within ServiceNow.
+		*/
+		try {
+			// Retrieve the current user's Sys ID
+			var userSysId = gs.getUserID();
+			var user = new GlideRecord('sys_user');
+			if (user.get(userSysId)) {
+				var userName = user.user_name;
+					
+				// Retrieve the API token from user preferences (or another field)
+				var apiToken = gs.getUser().getPreference('user_api_token'); // Change 'user_api_token' to the correct preference key
+				if (apiToken) {
+					// Combine user_name and API token
+					var combinedCredentials = userName + ':' + apiToken;
+					var encodedCredentials = GlideStringUtil.base64Encode(combinedCredentials);
+					return encodedCredentials;
+				} else {
+					throw new Error('API token not found for ' + userName);
+				}
+			} else {
+				throw new Error('User not found: ' + userSysId);
+			}
+		} catch (catError) {
+			return catError.message;
+		}
+	},
+
+    type: 'ReactPOappScriptInclude'
+});
+]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>sfarkas</sys_created_by>
+        <sys_created_on>2024-04-08 17:16:15</sys_created_on>
+        <sys_id>e9123bbf1bdd82106c1036ef034bcbd3</sys_id>
+        <sys_mod_count>101</sys_mod_count>
+        <sys_name>ReactPOappScriptInclude</sys_name>
+        <sys_package display_value="DSpoReactApp" source="x_elsr_react_app">f2ba728813da041032813092e144b01f</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="DSpoReactApp">f2ba728813da041032813092e144b01f</sys_scope>
+        <sys_update_name>sys_script_include_e9123bbf1bdd82106c1036ef034bcbd3</sys_update_name>
+        <sys_updated_by>sfarkas</sys_updated_by>
+        <sys_updated_on>2024-07-11 18:17:19</sys_updated_on>
+    </sys_script_include>
+</record_update>

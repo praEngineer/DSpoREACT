@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_ui_page">
+    <sys_ui_page action="INSERT_OR_UPDATE">
+        <category>general</category>
+        <client_script><![CDATA[        // Function to escape HTML entities
+        function escapeHtml(text) {
+            var map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+
+        function displayEscapedToken() {
+			try {
+				// Assuming the token is retrieved from a cookie or some source
+				var token = getCookie('glide_session_store');
+				if (token) {
+					// Escape the token before displaying it
+					var escapedToken = escapeHtml(token);
+					document.getElementById('tokenBox').value = escapedToken;
+				} else {
+					throw new Error('Token not found');
+				}
+			}
+			catch (jsError) {
+				document.getElementById('tokenBox').value = jsError.message;
+			}
+        }
+
+        // Function to get a cookie by name
+        function getCookie(name) {
+            var cookieArr = document.cookie.split(";");
+            for (var i = 0; i < cookieArr.length; i++) {
+                var cookiePair = cookieArr[i].split("=");
+                if (name === cookiePair[0].trim()) {
+                    return decodeURIComponent(cookiePair[1]);
+                }
+            }
+            return null;
+        }
+
+		// Function to retrieve the glide_session_store cookie
+		function retrieveGlideSessionStoreCookie() {
+			var iframe = document.createElement('iframe');
+			iframe.style.display = 'none';
+			iframe.src = 'https://nycdev1.service-now.com';
+			document.body.appendChild(iframe);
+
+			iframe.onload = function() {
+				try {
+					var glideSessionStoreCookie = getCookie('glide_session_store');
+					// console.log('glide_session_store cookie value:', glideSessionStoreCookie);
+					document.getElementById('tokenBox').value = glideSessionStoreCookie;
+					// Clean up by removing the iframe
+					document.body.removeChild(iframe);
+				} catch (e) {
+					// console.error('Error retrieving cookie:', e);
+					document.getElementById('tokenBox').value = e.message;
+				}
+			};
+		}
+
+		function getPOdataclient() {
+            var ga = new GlideAjax('ReactPOappScriptInclude');
+            ga.addParam('sysparm_name', 'getVendorData');
+            ga.addParam('sys_id', 'b2530d981b58911010c26391ec4bcb1a'); // Replace with the specific sys_id
+			ga.getXMLAnswer(function(response) {
+				try {
+					if (response) {
+						var parsedResponse = JSON.parse(response);
+						document.getElementById('result').innerText = JSON.stringify(parsedResponse, null, 2);
+					} else {
+						document.getElementById('result').innerText = 'method failed to retrieve data';
+					}
+				} catch (error) {
+					document.getElementById('result').innerText = 'Error parsing response: ' + error.message;
+				}
+			});
+        }
+
+        window.onload = getPOdataclient();]]></client_script>
+        <description>In ServiceNow, I have a script included named "ReactPOappScriptInclude".&#13;
+&#13;
+Within ReactPOappScriptInclude there is a method called "getCredentials", which has no input arguments.  &#13;
+&#13;
+I want a ServiceNow UI Page that executes getCredentials and shows the results in an HTML text box.&#13;
+&#13;
+Script Include Configuration:&#13;
+&#13;
+Ensure ReactPOappScriptInclude contains the getCredentials method.&#13;
+The getCredentials method should return the credentials as a string.&#13;
+&#13;
+UI Page Configuration:&#13;
+&#13;
+HTML includes a text area to display the credentials.&#13;
+JavaScript within the HTML head section contains a fetchCredentials function to call the getCredentials method.&#13;
+The fetchCredentials function uses GlideAjax to call the script include and set the response into the text area.&#13;
+The on-load attribute of the body tag ensures fetchCredentials is called when the page loads.&#13;
+</description>
+        <direct>false</direct>
+        <endpoint>x_elsr_react_app_GreenFormScriptIncludeTest.do</endpoint>
+        <html><![CDATA[<g:ui_page xmlns:g="http://www.service-now.com/ui_page">
+<html>
+<head>
+    <title>Escape Text Example</title>
+</head>
+<body>
+    <h1>Purchase Order Data</h1>
+    <pre id="result">Loading...</pre>
+</body>
+</html>
+</g:ui_page>]]></html>
+        <name>GreenFormScriptIncludeTest</name>
+        <processing_script/>
+        <sys_class_name>sys_ui_page</sys_class_name>
+        <sys_created_by>sfarkas</sys_created_by>
+        <sys_created_on>2024-07-09 14:07:22</sys_created_on>
+        <sys_id>2e8bb4651b9fc21061a9a718624bcb9e</sys_id>
+        <sys_mod_count>39</sys_mod_count>
+        <sys_name>GreenFormScriptIncludeTest</sys_name>
+        <sys_package display_value="DSpoReactApp" source="x_elsr_react_app">f2ba728813da041032813092e144b01f</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="DSpoReactApp">f2ba728813da041032813092e144b01f</sys_scope>
+        <sys_update_name>sys_ui_page_2e8bb4651b9fc21061a9a718624bcb9e</sys_update_name>
+        <sys_updated_by>sfarkas</sys_updated_by>
+        <sys_updated_on>2024-07-11 12:55:45</sys_updated_on>
+    </sys_ui_page>
+</record_update>
