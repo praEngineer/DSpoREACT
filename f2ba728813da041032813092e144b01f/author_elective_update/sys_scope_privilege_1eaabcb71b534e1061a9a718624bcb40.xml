@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_scope_privilege">
+    <sys_scope_privilege action="DELETE">
+        <operation>execute</operation>
+        <source_scope display_value="DSpoReactApp">f2ba728813da041032813092e144b01f</source_scope>
+        <status>allowed</status>
+        <sys_class_name>sys_scope_privilege</sys_class_name>
+        <sys_created_by>sfarkas</sys_created_by>
+        <sys_created_on>2024-07-16 13:47:55</sys_created_on>
+        <sys_id>1eaabcb71b534e1061a9a718624bcb40</sys_id>
+        <sys_mod_count>2</sys_mod_count>
+        <sys_name>ReactPOappScriptInclude</sys_name>
+        <sys_package display_value="DSpoReactApp" source="x_elsr_react_app">f2ba728813da041032813092e144b01f</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="DSpoReactApp">f2ba728813da041032813092e144b01f</sys_scope>
+        <sys_update_name>sys_scope_privilege_1eaabcb71b534e1061a9a718624bcb40</sys_update_name>
+        <sys_updated_by>sfarkas</sys_updated_by>
+        <sys_updated_on>2024-07-16 13:59:07</sys_updated_on>
+        <target_name>ReactPOappScriptInclude</target_name>
+        <target_scope display_value="DSpoReactApp">f2ba728813da041032813092e144b01f</target_scope>
+        <target_type>sys_script_include</target_type>
+    </sys_scope_privilege>
+    <sys_update_version action="INSERT_OR_UPDATE">
+        <action>DELETE</action>
+        <application display_value="DSpoReactApp">f2ba728813da041032813092e144b01f</application>
+        <file_path/>
+        <instance_id>d1068f71dbe79b08439ef70fbf96194a</instance_id>
+        <instance_name>nycdsdev1</instance_name>
+        <name>sys_scope_privilege_1eaabcb71b534e1061a9a718624bcb40</name>
+        <payload><![CDATA[<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_scope_privilege"><sys_scope_privilege action="INSERT_OR_UPDATE"><operation>execute</operation><source_scope display_value="DSpoReactApp">f2ba728813da041032813092e144b01f</source_scope><status>allowed</status><sys_class_name>sys_scope_privilege</sys_class_name><sys_created_by>sfarkas</sys_created_by><sys_created_on>2024-07-16 13:47:55</sys_created_on><sys_id>1eaabcb71b534e1061a9a718624bcb40</sys_id><sys_mod_count>2</sys_mod_count><sys_name>ReactPOappScriptInclude</sys_name><sys_package display_value="DSpoReactApp" source="x_elsr_react_app">f2ba728813da041032813092e144b01f</sys_package><sys_policy/><sys_scope display_value="DSpoReactApp">f2ba728813da041032813092e144b01f</sys_scope><sys_update_name>sys_scope_privilege_1eaabcb71b534e1061a9a718624bcb40</sys_update_name><sys_updated_by>sfarkas</sys_updated_by><sys_updated_on>2024-07-16 13:59:07</sys_updated_on><target_name>ReactPOappScriptInclude</target_name><target_scope display_value="DSpoReactApp">f2ba728813da041032813092e144b01f</target_scope><target_type>sys_script_include</target_type></sys_scope_privilege></record_update>]]></payload>
+        <payload_hash>-161531393</payload_hash>
+        <record_name>ReactPOappScriptInclude</record_name>
+        <reverted_from/>
+        <source>8eeddb2f1bec0210baac766e034bcb81</source>
+        <source_table>sys_update_set</source_table>
+        <state>previous</state>
+        <sys_created_by>sfarkas</sys_created_by>
+        <sys_created_on>2024-07-16 13:59:07</sys_created_on>
+        <sys_id>6dddb47b1b534e1061a9a718624bcb96</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_recorded_at>190bbd6fd090000001</sys_recorded_at>
+        <sys_updated_by>sfarkas</sys_updated_by>
+        <sys_updated_on>2024-07-16 13:59:07</sys_updated_on>
+        <type>Cross scope privilege</type>
+        <update_guid>a1ddb47bee534e1021a71b556a659a96</update_guid>
+        <update_guid_history>a1ddb47bee534e1021a71b556a659a96:-161531393,ea6cbcf73a534e103586ba9053f73984:-1281320368,dd4bf4f7ca534e10909264f4f1190d2c:-161531393</update_guid_history>
+    </sys_update_version>
+    <sys_metadata_delete action="INSERT_OR_UPDATE">
+        <sys_audit_delete/>
+        <sys_class_name>sys_metadata_delete</sys_class_name>
+        <sys_created_by>sfarkas</sys_created_by>
+        <sys_created_on>2024-07-16 18:26:02</sys_created_on>
+        <sys_db_object display_value="" name="sys_scope_privilege">sys_scope_privilege</sys_db_object>
+        <sys_id>0310967af61345c0a223efbc53e96799</sys_id>
+        <sys_metadata>1eaabcb71b534e1061a9a718624bcb40</sys_metadata>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>ReactPOappScriptInclude</sys_name>
+        <sys_package display_value="DSpoReactApp" source="x_elsr_react_app">f2ba728813da041032813092e144b01f</sys_package>
+        <sys_parent/>
+        <sys_policy/>
+        <sys_scope display_value="DSpoReactApp">f2ba728813da041032813092e144b01f</sys_scope>
+        <sys_scope_delete display_value="">90c089db0cdc4fc29475984a9e86e2f1</sys_scope_delete>
+        <sys_update_name>sys_scope_privilege_1eaabcb71b534e1061a9a718624bcb40</sys_update_name>
+        <sys_update_version display_value="sys_scope_privilege_1eaabcb71b534e1061a9a718624bcb40">6dddb47b1b534e1061a9a718624bcb96</sys_update_version>
+        <sys_updated_by>sfarkas</sys_updated_by>
+        <sys_updated_on>2024-07-16 18:26:02</sys_updated_on>
+    </sys_metadata_delete>
+</record_update>

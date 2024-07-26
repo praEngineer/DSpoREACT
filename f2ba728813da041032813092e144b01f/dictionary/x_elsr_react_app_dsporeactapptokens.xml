@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="d39095271b930e1061a9a718624bcb18" extends="sys_user" label="DSpoReactAppTokens" max_length="40" name="x_elsr_react_app_dsporeactapptokens" type="collection">
+        <element display="true" label="expires" max_length="40" name="expires" type="glide_date_time"/>
+        <element label="token" max_length="256" name="token" type="string"/>
+    </element>
+</database>

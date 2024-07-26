@@ -1,0 +1,868 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>x_elsr_react_app.ReactPOappScriptIncludePublic</api_name>
+        <caller_access/>
+        <client_callable>true</client_callable>
+        <description>UI Action for Green Form needs to use the credentials of the person logged in.&#13;
+&#13;
+Caller Access Settings:&#13;
+None: This setting means there are no specific restrictions or tracking on who can call this Script Include. If "Accessible from" is set to allow client calls, then client scripts can use GlideAjax to call this Script Include without any additional checks or tracking. In the context of a UI Page using React and createAsyncThunk, this setting would allow the asynchronous actions defined by createAsyncThunk to call the Script Include without any restrictions, assuming those calls are properly authenticated and authorized by ServiceNow's standard security mechanisms.&#13;
+&#13;
+Caller Restriction: This setting adds an extra layer of security by restricting which scripts can call this Script Include. You can specify which roles are required to call the Script Include. If a UI Page's script or a createAsyncThunk action attempts to call this Script Include without the required roles, the call will be denied. This is useful for scenarios where the Script Include performs sensitive operations that should only be accessible by users with specific roles.&#13;
+&#13;
+Client callable script includes some security implications, as they can expose sensitive data or functionality to unauthorized users. Therefore, ServiceNow requires you to specify a user access role for each client callable script include. This role determines which users can access and execute the script include from the client side.&#13;
+&#13;
+To make an internal function private in a script include that extends AbstractAjaxProcessor, just add an underscore to the beginning of the function name. &#13;
+&#13;
+The user access role for a client callable script include can be any existing role in ServiceNow, such as admin, itil, or sn_custom_role. You can also create your own custom role for this purpose. The role should be relevant and appropriate for the functionality and data that the script include provides. For example, if the script include performs some administrative tasks, you may want to use the admin role. If the script include accesses some confidential information, you may want to use a custom role that only grants access to specific users or groups.&#13;
+&#13;
+Caller Tracking: This option enables logging of all calls to this Script Include. It helps in auditing and tracking the usage of Script Includes, especially those that are critical or could impact system performance. For a UI Page using React and createAsyncThunk, enabling caller tracking means that every call from the UI Page to the Script Include will be logged, providing visibility into how and when the Script Include is being used.&#13;
+&#13;
+Implications for UI Pages Using React and createAsyncThunk:&#13;
+None: The UI Page can freely make calls to the Script Include, provided other security checks are passed. This is straightforward and poses no additional development considerations.&#13;
+&#13;
+Caller Restriction: You must ensure that the users interacting with the UI Page have the necessary roles to invoke the Script Include. This could impact the design of your UI Page and the user experience, especially if roles restrict access to certain functionalities.&#13;
+&#13;
+You need to grant your scoped application access to the sys_user_token (Global) table. This can be done by modifying the cross-scope access settings. In the Target Table field, select the table you want to access (e.g., sys_user_token).&#13;
+Part of the benefit of scoped applications is they can allow or deny access from other tables. This allows them to keep 'private tables' for their application data or allow sharing of the information. This has nothing to do with the user's security, it is application-to-application security. If you go to the tables you are trying to write, you'll see an Application Access tab that defines the cross application access.&#13;
+&#13;
+Caller Tracking: While this does not directly impact the ability of the UI Page to call the Script Include, it's important to be aware that calls will be logged. This could be relevant for performance considerations and auditing purposes.</description>
+        <name>ReactPOappScriptIncludePublic</name>
+        <script><![CDATA[var CurrentScopeScriptInclude = Class.create();
+CurrentScopeScriptInclude.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
+    getCurrentScope: function() {
+        return gs.getCurrentScopeName();
+    },
+
+    type: 'CurrentScopeScriptInclude'
+});
+
+var ReactPOappScriptIncludePublic = Class.create();
+ReactPOappScriptIncludePublic.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
+	// initialize: function() {},
+	// https://sn.jace.pro/docs/glideajax/
+    // If you want to use initialize you can only if you include
+    // AbstractAjaxProcessor with something like this;
+    /*
+    initialize: function(request, responseXML, gc) {
+        global.AbstractAjaxProcessor.prototype.initialize.call(this, request, responseXML, gc);
+        // Your code
+    },
+    */	
+	canIconnect: function() {
+		/*
+		you may have noticed that we don't return any values from our function. We can if we 
+		want, but it is not necessary. The AbstractAjaxProcessor class (which is our 
+		superclass - which means we're extending it) has built-in functionality that returns 
+		the entire XML document when we're through. 
+		*/
+		var strResponse = 'correct response from canIconnect';
+		//return JSON.stringify(strResponse);
+		return strResponse;
+	},
+	// getScope: function() {
+    //     // return gs.getCurrentScopeName();
+    //     // var response = {
+	// 	// 	answer: gs.getCurrentScopeName(),
+    //     //  };
+
+    //     // return JSON.encode(response);
+	// 	// Build the payload. You can return additional data if needed.
+	// 	// gs.addInfoMessage(JSON.stringify('getScope triggered'));
+	// 	var scope = gs.getCurrentScopeName();
+	// 	return JSON.stringify(scope);
+    // },
+
+    sendPutRequest: function() {
+        var step = 'start sendPutRequest in Script Include';
+        try {
+            var snTableName = this.getParameter('table_name');
+            var appData = this.getParameter('payload');
+
+            step = 'get copy of sys_id';
+            var parentSysId = this.getParameter('sys_id');
+            // step = 'get every field from appData';
+            // var everyField = Object.keys(appData);
+            // step = 'convert to CSV';
+            // var csvFields = everyField.join(',');
+
+            // var instanceUrl = gs.getProperty('glide.servlet.uri');
+
+            step = 'while building endpoint 1';
+            // var endpoint = instanceUrl + 'api/now/table/' + snTableName;
+            var recordSysId = '';
+
+            if (Array.isArray(appData)) {
+                step = step + ' (appData is an array) ';
+                if (parentSysId !== undefined) {
+                    recordSysId = parentSysId;
+                  //  endpoint = endpoint + '/' + recordSysId + '?sysparm_fields=' + csvFields
+                  //      + '&sysparm_display_value=false&sysparm_exclude_reference_link=false&sysparm_fields=sys_id%2C%20vendor&sysparm_input_display_value=true&sysparm_suppress_auto_sys_field=false&sysparm_view=false&sysparm_query_no_domain=true';
+                } else {
+                    recordSysId = appData[0].sys_id;
+                  //  endpoint = endpoint + '/' + recordSysId + '?sysparm_fields=' + csvFields
+                  //      + '&sysparm_display_value=false&sysparm_exclude_reference_link=false&sysparm_input_display_value=false&sysparm_suppress_auto_sys_field=false&sysparm_view=false&sysparm_query_no_domain=true';
+                }
+            } else {
+                step = step + ' (appData not an array) ';
+                if (parentSysId !== undefined) {
+                    recordSysId = parentSysId;
+                 //   endpoint = endpoint + '/' + recordSysId + '?sysparm_fields=' + csvFields
+                 //       + '&sysparm_display_value=false&sysparm_exclude_reference_link=false&sysparm_input_display_value=false&sysparm_suppress_auto_sys_field=false&sysparm_view=false&sysparm_query_no_domain=true';
+                } else {
+                    recordSysId = appData.sys_id;
+                 //   endpoint = endpoint + '/' + recordSysId + '?sysparm_fields=' + csvFields
+                 //       + '&sysparm_display_value=false&sysparm_exclude_reference_link=false&sysparm_input_display_value=false&sysparm_suppress_auto_sys_field=false&sysparm_view=false&sysparm_query_no_domain=true';
+                }
+            }
+            step = 'recordSysId and endpoint ready';
+
+            var gr = new GlideRecord(snTableName);
+			var bAtLeastOne = false;
+			var getRslt = gr.get(recordSysId);
+			if(getRslt){
+				for (var key in gr) {
+					// Check if the key is a valid field and not a system property
+					if (gr[key] instanceof GlideElement) {
+						var grValue = gr.getValue(key);
+						if (appData.hasOwnProperty(key)) {
+							if(appData[key] !== grValue){
+								gr.setValue(key, appData[key]);
+								bAtLeastOne = true;
+							}
+						}
+					}
+				}
+				// Update the record
+				if(bAtLeastOne){
+					var updatedSysId = gr.update();
+					if (updatedSysId) {
+						var result = {};
+						var fields = gr.getFields();
+						for (var i = 0; i < fields.size(); i++) {
+							var fieldName = fields.get(i).getName();
+							var fieldValue = gr.getValue(fieldName);
+							result[fieldName] = fieldValue;
+						}
+						return JSON.stringify(result); 
+					} else {
+						throw new Error('Failed to update record ' + recordSysId);
+					}
+				}
+				else {
+					return JSON.stringify(getRslt);					
+				}
+            } else {
+                throw new Error('row ' + recordSysId + ' not found');
+            }
+        } catch (ex) {
+            // gs.error('at step ' + step + ' Script Include sendPutRequest caught: ' + ex.message);
+			var linkToLog = logWithLink('at step ' + step + ' Script Include sendPutRequest caught: ' + e, 'error');
+			gs.addErrorMessage('ERROR: Unknown error. Error log located <a href="' + linkToLog + '">here</a>.');
+			return ex.message;
+        }
+    },
+
+	getExperiment: function () {
+		try {
+			var gr = new GlideRecord('x_dosny_bit_procur_bit_procurement_purchase_order'); // 'x_dosny_bit_procur_commodity');
+			if(!gr){
+				throw new Error('gr not initialized for x_dosny_bit_procur_bit_procurement_purchase_order');
+				// return JSON.stringify(rowData);				
+			}
+			else {
+				var sys_id = this.getParameter('sys_id');
+				var getRslt = gr.get(sys_id);
+				var rowData = {};
+				if(getRslt){
+					for (var key in gr) {
+						// Check if the key is a valid field and not a system property
+						if (gr[key] instanceof GlideElement) {
+							var grValue = gr.getValue(key);
+							if(grValue === null || grValue === ''){
+								rowData[key] ='';
+							}
+							else if(grValue.contains('http')){
+								rowData[key] =''; // url effectively means a value was not chosen from a reference table
+
+							}
+							else {
+								rowData[key] = gr.getValue(key); // Get the field's value
+							}
+						}
+					}
+				}
+				return JSON.stringify(rowData); // Convert the rowData object to JSON
+			}
+		}
+		catch(siErr){
+			var linkToLog = logWithLink('from getExperiment: ' + siErr, 'error');
+			gs.addErrorMessage('ERROR: Unknown error. Error log located <a href="' + linkToLog + '">here</a>.');
+			return JSON.stringify(siErr.message + ' from getExperiment');
+		}
+
+	},
+
+	getExperiment2: function() {
+		var allVendors = {
+			snTableName: 'vendors',
+			appData:[], // Set appData to a serializable initial value (e.g., null)
+			status: 'idle', // | 'loading' | 'succeeded' | 'failed'
+			error: null,
+		};
+		var vendorData = {};
+		vendorData = {
+			'name': 'anything', // Assuming there's a 'name' field in your table
+			'sys_id': 'something' // sys_id is a standard field
+		};
+
+		allVendors.appData.push(vendorData);
+
+		vendorData = {
+			'name': 'anything else', // Assuming there's a 'name' field in your table
+			'sys_id': 'something else' // sys_id is a standard field
+		};
+
+		allVendors.appData.push(vendorData);
+
+		try{
+			var tableName = 'core_company';
+			var gr = new GlideRecord(tableName);
+			if(!gr){
+				allVendors.status = 'failed';
+				allVendors.error = 'No GlideRecord found';	
+				return JSON.stringify(allVendors); // Return a stringified JSON object		
+			}
+			//gr.addQuery('active', true);
+			gr.addQuery('vendor', true);
+			gr.orderBy('name'); // Order by the 'name' field alphabetically
+			gr.query();
+
+			var aName = '';
+			var aSysId = '';
+			var vendorCount  = 0;
+			while (gr.next()) {
+				// Construct an object with name and sys_id for each row
+				vendorCount++;
+				aName = gr.name.toString();
+				aSysId = gr.sys_id.toString();
+				vendorData = {
+					'name': aName, // Assuming there's a 'name' field in your table
+					'sys_id': aSysId, // sys_id is a standard field
+					'whichOne': vendorCount,
+				};
+
+				// Push the constructed object into appData
+				allVendors.appData.push(vendorData);
+			}
+
+			var tableDescriptor = new GlideTableDescriptor(tableName);
+			if(!tableDescriptor){
+				allVendors.snTableName = 'GlideTableDescriptor is not Valid';
+
+			}
+			else {
+				if (tableDescriptor.isValid()) {
+					allVendors.snTableName = 'tableDescriptor is Valid';
+				}				
+			}
+
+		}
+		catch(siErr){
+			vendorData = {
+				'name': 'problem gr', // Assuming there's a 'name' field in your table
+				'sys_id': siErr.message // sys_id is a standard field
+			};
+			allVendors.appData.push(vendorData);
+			var linkToLog = logWithLink('problem gr' + siErr, 'error');
+			gs.addErrorMessage('ERROR: Unknown error. Error log located <a href="' + linkToLog + '">here</a>.');
+		}
+
+		// Update status based on the result
+		if (allVendors.appData.length > 0) {
+			allVendors.status = 'succeeded';
+		} else {
+			allVendors.status = 'failed';
+			allVendors.error = 'No active vendors found';
+		}
+
+
+
+		return JSON.stringify(allVendors); // Return a stringified JSON object
+	},
+
+	getPOdata: function() {
+		try {
+			var gr = new GlideRecord('x_dosny_bit_procur_bit_procurement_purchase_order');
+			if(!gr){
+				throw new Error('gr not initialized for x_dosny_bit_procur_bit_procurement_purchase_order');
+			}
+			else {
+				var sys_id = this.getParameter('sys_id');
+				var getRslt = gr.get(sys_id); // returns true or false
+				var rowData = {};
+				if (getRslt) {
+					for (var key in gr) {
+						// Check if the key is a valid field and not a system property
+						if (gr[key] instanceof GlideElement) {
+							var grValue = gr.getValue(key);
+							if(grValue === null || grValue === ''){
+								rowData[key] ='';
+							}
+							else if(grValue.contains('http')){
+								rowData[key] =''; // url effectively means a value was not chosen from a reference table
+
+							}
+							else {
+								rowData[key] = gr.getValue(key); // Get the field's value
+							}
+						}
+					}
+					return JSON.stringify(rowData); 
+				} else {
+					throw new Error('SN SI getPOdata Record not found for ' + sys_id);
+				}
+			}
+		}
+		catch (siErr){
+			var linkToLog = logWithLink('from getPOdata: ' + siErr, 'error');
+			gs.addErrorMessage('ERROR: Unknown error. Error log located <a href="' + linkToLog + '">here</a>.');
+			return JSON.stringify(siErr.message + ' from getPOdata');
+		}
+
+    },
+    
+    _wrapInAnswer: function(obj) {
+        return JSON.stringify({answer: obj});
+    },
+
+    putPOdata: function() {
+        var tableName = this.getParameter('table_name');
+        var sysId = this.getParameter('sys_id');
+        
+        if (!tableName || !sysId) {
+            return JSON.stringify({status: 'failure', message: 'Missing table_name or sys_id parameter'});
+        }
+		var step = 'before try';
+        var siPayload = this.getParameter('payload');
+		if(typeof siPayload === 'string' && typeof siPayload !== 'object'){siPayload = JSON.parse(siPayload) };
+        var gr = new GlideRecord(tableName);
+
+		try{
+            if (gr.get(sysId)) {
+                // Get all parameter names
+                var data = siPayload;
+                var keys = Object.keys(data);
+
+                for (var i = 0; i < keys.length; i++) {
+                    var key = keys[i];
+                    var value = data[key];
+                    if (gr.isValidField(key)) {
+						if(value !== gr.getValue(key) && !key.startsWith('sys_') && key !== 'number' ) {
+							step = 'update ' + key + ' from ' + gr.getValue(key) + ' to ' + value;
+							gr.setValue(key, value);
+						}
+						else {
+							step = 'no need to update ' + key + ' from ' + gr.getValue(key) + ' to ' + value;
+						}
+                    }
+                }
+                step = 'before update';
+                gr.update();
+
+                step = 'Extract all fields and their values';
+                var fields = {};
+                var fieldNames = Object.keys(data);
+                for (var i = 0; i < fieldNames.length; i++) {
+                    var fieldName = fieldNames[i];
+                    if (gr.isValidField(fieldName) && !fieldName.startsWith('sys_')) {
+                        fields[fieldName] = gr.getValue(fieldName);
+                    }
+                }
+
+                step = 'return answer';
+                return this._wrapInAnswer({
+                    status: 'success',
+                    data: fields
+                });
+            } else {
+                step = 'Record not found';
+                return this._wrapInAnswer({
+                    status: 'failure',
+                    error: 'SN SI putPOdata Record not found (' + sysId + ')'
+                });
+            }     
+		}
+		catch(err){
+			return this._wrapInAnswer({
+                status: 'failure',
+                error: err.message + ' after step ' + step,
+            });
+		}
+	
+    },
+
+    // Method to create a new token
+    createToken: function(userId) {
+        // Generate a token (for simplicity, using a UUID)
+        var newToken = gs.generateGUID();
+        
+        // Set token expiration (e.g., 1 hour from now)
+        // Set token expiration (e.g., 1 hour from now)
+        var expiration = new GlideDateTime();
+        var minutesToAdd = 60; // Number of minutes to add (1 hour)
+        expiration.addSeconds(minutesToAdd * 60);
+
+        // Store the token in the UserTokens table
+        var gr = new GlideRecord('x_elsr_react_app_dsporeactapptokens');
+		gr.addQuery('name', userId);
+		gr.query();
+
+        if (gr.next()) {
+			gr.setValue('expires', expiration);
+			var currToken = gr.getValue('token');
+			if(!currToken){
+				gr.setValue('token', newToken);
+				return newToken;
+			}
+			else {
+				return currToken;
+			}
+        }
+		else {
+			gr.initialize();
+			gr.setValue('user', userId);
+			gr.setValue('token', newToken);
+			gr.setValue('expiration', expiration);
+			gr.insert();
+            return newToken;			
+		}
+
+    },
+
+    // Method to retrieve a valid token
+    getToken: function(userId) {
+        var gr = new GlideRecord('x_elsr_react_app_dsporeactapptokens');
+        gr.addQuery('name', userId);
+        gr.addQuery('expires', '>', new GlideDateTime());
+        gr.query();
+
+        if (gr.next()) {
+            return gr.getValue('token');
+        } else {
+            // If no valid token is found, create a new one
+            return this.createToken(userId);
+        }
+    },
+
+	// sendPutRequest1: function(data) {
+    //     var step = 'start sendPutRequest in Script Include';
+    //     var snTableName = data.table_name;
+	// 	var aUserId = data.currUser;
+    //     var appData = data.payload;
+
+    //     step = 'get copy of sys_id';
+    //     var parentSysId = data.sys_id;
+    //     step = 'get every field from appData';
+    //     var everyField = Object.keys(appData);
+    //     step = 'convert to CSV';
+    //     var csvFields = everyField.join(',');
+        
+    //     var instanceUrl = 'https://nycdsdev1.service-now.com';
+
+    //     step = 'while building endpoint 1';
+    //     var endpoint = instanceUrl + '/api/now/table/' + snTableName;
+    //     var recordSysId = '';
+        
+    //     if (Array.isArray(appData)) {
+    //         step = step + ' (appData is an array) ';
+    //         if (parentSysId !== undefined) {
+    //             recordSysId = parentSysId;
+    //             endpoint = endpoint + '/' + recordSysId + '?sysparm_fields=' + csvFields
+    //                 + '&sysparm_display_value=false&sysparm_exclude_reference_link=false&sysparm_fields=sys_id%2C%20vendor&sysparm_input_display_value=true&sysparm_suppress_auto_sys_field=false&sysparm_view=false&sysparm_query_no_domain=true';
+    //         } else {
+    //             recordSysId = appData[0].sys_id;
+    //             endpoint = endpoint + '/' + recordSysId + '?sysparm_fields=' + csvFields
+    //                 + '&sysparm_display_value=false&sysparm_exclude_reference_link=false&sysparm_input_display_value=false&sysparm_suppress_auto_sys_field=false&sysparm_view=false&sysparm_query_no_domain=true';
+    //         }
+    //     } else {
+    //         step = step + ' (appData not an array) ';
+    //         if (parentSysId !== undefined) {
+    //             recordSysId = parentSysId;
+    //             endpoint = endpoint + '/' + recordSysId + '?sysparm_fields=' + csvFields
+    //                 + '&sysparm_display_value=false&sysparm_exclude_reference_link=false&sysparm_input_display_value=false&sysparm_suppress_auto_sys_field=false&sysparm_view=false&sysparm_query_no_domain=true';
+    //         } else {
+    //             recordSysId = appData.sys_id;
+    //             endpoint = endpoint + '/' + recordSysId + '?sysparm_fields=' + csvFields
+    //                 + '&sysparm_display_value=false&sysparm_exclude_reference_link=false&sysparm_input_display_value=false&sysparm_suppress_auto_sys_field=false&sysparm_view=false&sysparm_query_no_domain=true';
+    //         }
+    //     }
+    //     step = 'endpoint ready';
+
+    //     var requestBody = appData; 
+
+    //     step = 'initialize restMessage';
+    //     var restMessage = new sn_ws.RESTMessageV2();
+
+    //     step = 'initialize endpoint';
+    //     restMessage.setEndpoint(endpoint);
+        
+    //     restMessage.setHttpMethod('PUT');
+    //     restMessage.setRequestHeader('Content-Type', 'application/json');
+    //     restMessage.setRequestBody(requestBody);
+
+    //     step = 'retrieve user token';
+	// 	var userToken = this.getToken(aUserId);
+	// 	gs.info('restMessage userToken is: ' + userToken);
+    //     restMessage.setRequestHeader('Authorization', 'Bearer ' + userToken);
+
+    //     step = 'before sendPutRequest try';
+    //     try {
+    //         var response = restMessage.execute();
+    //         step = 'getBody from response';
+	// 		gs.info('restMessage endpoint is: ' + endpoint);
+	// 		gs.info('restMessage response is: ' + JSON.parse(response));
+    //         var responseBody = response.getBody();
+    //         step = 'status from response';
+    //         var httpStatus = response.getStatusCode();
+    //         if (httpStatus > 299) {
+    //             throw new Error('this http status unexpected: ' + httpStatus);
+    //         }
+    //         step = 'return responseBody';
+    //         return responseBody;
+    //     } catch (ex) {
+	// 		var linkToLog = logWithLink('problem sendPutRequest1: ' + ex, 'error');
+	// 		gs.addErrorMessage('ERROR: Unknown error. Error log located <a href="' + linkToLog + '">here</a>.');
+	// 		var tmp = ex.message;
+    //         var myMessage = JSON.stringify({'data': [], 'status': 'failed', 'error': tmp});
+    //         gs.error('at step ' + step + ' Script Include sendPutRequest caught: ' + tmp);
+    //         return myMessage;
+    //     }
+    // },
+
+    // testSendPutRequest1: function() {
+    //     var myScriptInclude = new ReactPOappScriptInclude();
+    //     var data = {
+    //         table_name: 'x_dosny_bit_procur_bit_procurement_purchase_order',
+    //         sys_id: '919b83701bba461076f215ff034bcb1a', // Replace with a valid sys_id
+    //         payload: {
+    //             extended_description: 'brand new text',
+    //             // Include more fields as needed
+    //         }
+    //     };
+    //     var response = myScriptInclude.sendPutRequest(data);
+    //     gs.info('Response: ' + response);
+    // },
+
+	// getAnything: function() {
+	// 	return JSON.stringify({aStr: 'correct response from getAnything'});
+	// },
+
+    getAllVendorNames: function() {
+		var allVendors = {
+			snTableName: 'vendors',
+			appData:[], // Set appData to a serializable initial value (e.g., null)
+			status: 'idle', // | 'loading' | 'succeeded' | 'failed'
+			error: null,
+		};
+
+		var tableName = 'core_company';
+		// var tableDescriptor = new GlideTableDescriptor(tableName);
+		// java.lang.SecurityException: GlideTableDescriptor is not allowed in scoped applications
+
+		try{
+			var gr = new GlideRecord(tableName);
+			if(!gr){
+				allVendors.status = 'failed';
+				allVendors.error = 'No GlideRecord found';	
+				return JSON.stringify(allVendors); // Return a stringified JSON object		
+			}
+			// gr.addQuery('active', true);
+			gr.addQuery('vendor', true);
+			gr.orderBy('name'); // Order by the 'name' field alphabetically
+			gr.query();
+			var vendorData = {};
+			var aName = '';
+			var aSysId = '';
+			while (gr.next()) {
+				// Construct an object with name and sys_id for each row
+				try{
+					aName = gr.name.toString();
+					aSysId = gr.sys_id.toString();
+					vendorData = {
+						'name': aName, // Assuming there's a 'name' field in your table
+						'sys_id': aSysId // sys_id is a standard field
+					};
+				}
+				catch(siErr){
+					vendorData = {
+						'name': 'problem gr', // Assuming there's a 'name' field in your table
+						'sys_id': siErr.message // sys_id is a standard field
+					};
+				}
+				// Push the constructed object into appData
+				allVendors.appData.push(vendorData);
+			}
+
+			// Update status based on the result
+			if (allVendors.appData.length > 0) {
+				allVendors.status = 'succeeded';
+			} else {
+				allVendors.status = 'failed';
+				allVendors.error = 'No active vendors found';
+			}
+		}
+		catch (outerSIerr){
+			allVendors.status = 'failed';
+			allVendors.error = 'caught: ' + outerSIerr.message;
+			var linkToLog = logWithLink('problem getAllVendorNames' + outerSIerr, 'error');
+			gs.addErrorMessage('ERROR: Unknown error. Error log located <a href="' + linkToLog + '">here</a>.');
+
+		}
+		return JSON.stringify(allVendors); // Return a stringified JSON object
+	},
+
+	getVendorData: function() {
+		var rowData = {};
+
+		try {
+			var sys_id = this.getParameter('sys_id');
+			var gr = new GlideRecord('core_company');
+			if(!gr){
+				rowData['error'] = 'gr not initialized for core_company';
+				return JSON.stringify(rowData);				
+			}
+			// rowData['Col aSysID'] = 'Col ' + sys_id + '<br /><br />';
+			var getRslt = gr.get(sys_id); // returns true or falase
+			if (getRslt) {
+				// Iterate over all fields in the record
+				for (var key in gr) {
+					// Check if the key is a valid field and not a system property
+					if (gr[key] instanceof GlideElement) {
+						var grValue = gr.getValue(key);
+						if(grValue === null || grValue === ''){
+							rowData[key] ='';
+						}
+						else if(grValue.contains('http')){
+							rowData[key] ='anySysId'; // url effectively means a value was not chosen from a reference table
+
+						}
+						else {
+							rowData[key] = gr.getValue(key); // Get the field's value
+						}
+					}
+				}
+				if(Object.keys(rowData).length < 1){
+					return JSON.stringify({ error: 'rowData is empty for ' + sys_id });
+				}
+			} else {
+				rowData['error'] = 'SN SI getVendordata Record not found for ' + sys_id;
+			}
+		}
+		catch (error){
+			var linkToLog = logWithLink('problem getVendorData' + error, 'error');
+			gs.addErrorMessage('ERROR: Unknown error. Error log located <a href="' + linkToLog + '">here</a>.');
+
+			rowData['error'] = 'caught ' + error.message;
+		}
+		return JSON.stringify(rowData);
+	},
+	
+    getAllCommodityCodes: function() {
+		var allCommodityCodes = {
+			snTableName: 'commoditycodes',
+			appData:[], // Set appData to a serializable initial value (e.g., null)
+			status: 'idle', // | 'loading' | 'succeeded' | 'failed'
+			error: null,
+		};
+
+		var tableName = 'x_dosny_bit_procur_commodity';
+
+		try{
+			var step = 'first';
+			var gr = new GlideRecord(tableName);
+			gr.query('u_string_1','L1 4');
+			gr.orderBy('name'); // Order by the 'name' field alphabetically
+			gr.query();
+
+			step = 'second';
+			while (gr.next()) {
+				// Construct an object with name and sys_id for each row
+				step = 'second a';
+				var oneRow = {
+					name: gr.name.toString(), // Assuming there's a 'name' field in your table
+					code: gr.commodity_code.toString(),
+					sys_id: gr.sys_id.toString() // sys_id is a standard field
+				};
+				step = 'second b';
+
+				// Push the constructed object into appData
+				allCommodityCodes.appData.push(oneRow);
+
+				step = 'second c';
+
+
+			}
+			step = 'thrid';
+			// Update status based on the result
+			if (allCommodityCodes.appData.length > 0) {
+				allCommodityCodes.status = 'succeeded';
+			} else {
+				allCommodityCodes.status = 'failed';
+				allCommodityCodes.error = 'No commodity codes found';
+			}
+			step = 'fourth';
+		}
+		catch (error){
+			allCommodityCodes.status = 'failed';
+			allCommodityCodes.error = 'at step ' + step + ', it caught: ' + error.message;
+			var linkToLog = logWithLink('problem getAllCommodityCodes: ' + error, 'error');
+			gs.addErrorMessage('ERROR: Unknown error. Error log located <a href="' + linkToLog + '">here</a>.');
+		}
+
+		return JSON.stringify(allCommodityCodes); // Return a stringified JSON object
+	},
+
+	getCommodityCodeData: function() {
+		var rowData = {};
+
+		try {
+			var sys_id = this.getParameter('sys_id');
+			var gr = new GlideRecord('x_dosny_bit_procur_commodity');
+			if(!gr){
+				rowData['error'] = 'gr not initialized for x_dosny_bit_procur_commodity';
+				return JSON.stringify(rowData);				
+			}
+			// rowData['Col aSysID'] = 'Col ' + sys_id + '<br /><br />';
+			var getRslt = gr.get(sys_id); // returns true or falase
+			if (getRslt) {
+				// Iterate over all fields in the record
+				for (var key in gr) {
+					// Check if the key is a valid field and not a system property
+					if (gr[key] instanceof GlideElement) {
+						var grValue = gr.getValue(key);
+						if(grValue === null || grValue === ''){
+							rowData[key] ='';
+						}
+						else if(grValue.contains('http')){
+							rowData[key] ='anySysId'; // url effectively means a value was not chosen from a reference table
+
+						}
+						else {
+							rowData[key] = gr.getValue(key); // Get the field's value
+						}
+					}
+				}
+				if(Object.keys(rowData).length < 1){
+					return JSON.stringify({ error: 'rowData is empty for ' + sys_id });
+				}
+			} else {
+				rowData['error'] = 'SN SI getCommodityCodeData Record not found for ' + sys_id;
+			}
+		}
+		catch (error){
+			var linkToLog = logWithLink('problem getCommodityCodeData: ' + error, 'error');
+			gs.addErrorMessage('ERROR: Unknown error. Error log located <a href="' + linkToLog + '">here</a>.');
+
+			rowData['error'] = 'caught ' + error.message;
+		}
+		return JSON.stringify(rowData);
+
+	},
+
+    getCredentials: function() {
+		/*
+			Retrieve User ID:
+			Use gs.getUserID() to get the current user's Sys ID.
+
+			Get User Record:
+			Fetch the user record from the sys_user table using the GlideRecord class.
+
+			Retrieve User Preferences:
+			Use gs.getUser().getPreference('user_credentials') to get the stored credentials from user preferences.
+
+			Encode Credentials:
+			Use GlideStringUtil.base64Encode(credentials) to encode the credentials in base64 format.
+
+			Return Encoded Credentials:
+			If credentials are found and encoded, return the encoded string.
+			Handle cases where credentials or user are not found.
+			By storing and retrieving the credentials in user preferences, you avoid using 
+			the restricted GlideEncrypter class and maintain secure handling of sensitive 
+			information within ServiceNow.
+		*/
+		try {
+			// Retrieve the current user's Sys ID
+			var userSysId = gs.getUserID();
+			var user = new GlideRecord('sys_user');
+			if (user.get(userSysId)) {
+				var userName = user.user_name;
+					
+				// Retrieve the API token from user preferences (or another field)
+				var apiToken = gs.getUser().getPreference('user_api_token'); // Change 'user_api_token' to the correct preference key
+				if (apiToken) {
+					// Combine user_name and API token
+					var combinedCredentials = userName + ':' + apiToken;
+					var encodedCredentials = GlideStringUtil.base64Encode(combinedCredentials);
+					return encodedCredentials;
+				} else {
+					throw new Error('API token not found for ' + userName);
+				}
+			} else {
+				throw new Error('User not found: ' + userSysId);
+			}
+		} catch (catError) {
+			var linkToLog = logWithLink('problem getCredentials: ' + catError, 'error');
+			gs.addErrorMessage('ERROR: Unknown error. Error log located <a href="' + linkToLog + '">here</a>.');
+
+			return catError.message;
+		}
+	},
+
+	logWithLink: function(msg, type) {
+		if (!msg) {
+			try {
+				logWithLink('Script include logWithLink called without a message argument.', 'warning');
+			}
+			catch(e) {
+				gs.log('Script include logWithLink has failed with the following error: ' + e.msg);
+			}
+		}
+		var gdt = new GlideDateTime(gs.nowDateTime());
+		gdt.add(5000);
+		var nearFuture = gdt.getValue();
+		gdt.subtract(30000);
+		var halfMinAgo = gdt.getValue();
+		var query = 'sys_created_onBETWEENjavascript:gs.dateGenerate(\'' + halfMinAgo + '\')@javascript:gs.dateGenerate(\'' + nearFuture + '\')';
+		var logLink = gs.getProperty('glide.servlet.uri') + 'syslog_list.do?sysparm_query=' + query;
+		if (type.toLowerCase() == 'error' || type.toLowerCase() == 'err') {
+			gs.logError(msg, 'logWithLink');
+		}
+		else if (type.toLowerCase() == 'warning' || type.toLowerCase() == 'warn') {
+			gs.logWarning(msg, 'logWithLink');
+		}
+		else {
+			gs.log(msg, 'logWithLink');
+		}
+		return logLink;
+	},
+
+    type: 'ReactPOappScriptIncludePublic'
+});
+]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>sfarkas</sys_created_by>
+        <sys_created_on>2024-07-18 16:09:02</sys_created_on>
+        <sys_id>451e67141b2f061076f215ff034bcb0f</sys_id>
+        <sys_mod_count>55</sys_mod_count>
+        <sys_name>ReactPOappScriptIncludePublic</sys_name>
+        <sys_package display_value="DSpoReactApp" source="x_elsr_react_app">f2ba728813da041032813092e144b01f</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="DSpoReactApp">f2ba728813da041032813092e144b01f</sys_scope>
+        <sys_update_name>sys_script_include_451e67141b2f061076f215ff034bcb0f</sys_update_name>
+        <sys_updated_by>sfarkas</sys_updated_by>
+        <sys_updated_on>2024-07-26 15:45:08</sys_updated_on>
+    </sys_script_include>
+</record_update>

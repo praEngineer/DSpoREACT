@@ -1,0 +1,1511 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="DELETE">
+        <access>package_private</access>
+        <active>false</active>
+        <api_name>x_elsr_react_app.ReactPOappScriptInclude</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description>UI Action for Green Form needs to use the credentials of the person logged in.&#13;
+&#13;
+Caller Access Settings:&#13;
+None: This setting means there are no specific restrictions or tracking on who can call this Script Include. If "Accessible from" is set to allow client calls, then client scripts can use GlideAjax to call this Script Include without any additional checks or tracking. In the context of a UI Page using React and createAsyncThunk, this setting would allow the asynchronous actions defined by createAsyncThunk to call the Script Include without any restrictions, assuming those calls are properly authenticated and authorized by ServiceNow's standard security mechanisms.&#13;
+&#13;
+Caller Restriction: This setting adds an extra layer of security by restricting which scripts can call this Script Include. You can specify which roles are required to call the Script Include. If a UI Page's script or a createAsyncThunk action attempts to call this Script Include without the required roles, the call will be denied. This is useful for scenarios where the Script Include performs sensitive operations that should only be accessible by users with specific roles.&#13;
+&#13;
+Caller Tracking: This option enables logging of all calls to this Script Include. It helps in auditing and tracking the usage of Script Includes, especially those that are critical or could impact system performance. For a UI Page using React and createAsyncThunk, enabling caller tracking means that every call from the UI Page to the Script Include will be logged, providing visibility into how and when the Script Include is being used.&#13;
+&#13;
+Implications for UI Pages Using React and createAsyncThunk:&#13;
+None: The UI Page can freely make calls to the Script Include, provided other security checks are passed. This is straightforward and poses no additional development considerations.&#13;
+&#13;
+Caller Restriction: You must ensure that the users interacting with the UI Page have the necessary roles to invoke the Script Include. This could impact the design of your UI Page and the user experience, especially if roles restrict access to certain functionalities.&#13;
+&#13;
+You need to grant your scoped application access to the sys_user_token (Global) table. This can be done by modifying the cross-scope access settings. In the Target Table field, select the table you want to access (e.g., sys_user_token).&#13;
+Part of the benefit of scoped applications is they can allow or deny access from other tables. This allows them to keep 'private tables' for their application data or allow sharing of the information. This has nothing to do with the user's security, it is application-to-application security. If you go to the tables you are trying to write, you'll see an Application Access tab that defines the cross application access.&#13;
+&#13;
+Caller Tracking: While this does not directly impact the ability of the UI Page to call the Script Include, it's important to be aware that calls will be logged. This could be relevant for performance considerations and auditing purposes.</description>
+        <name>ReactPOappScriptInclude</name>
+        <script><![CDATA[var ReactPOappScriptInclude = Class.create();
+ReactPOappScriptInclude.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
+	initialize: function() {},
+	canIconnect: function() {
+		return JSON.stringify('correct response from canIconnect');
+	},
+	getScope: function() {
+        // return gs.getCurrentScopeName();
+        // var response = {
+		// 	answer: gs.getCurrentScopeName(),
+        //  };
+
+        // return JSON.encode(response);
+		// Build the payload. You can return additional data if needed.
+		// gs.addInfoMessage(JSON.stringify('getScope triggered'));
+		var scope = gs.getCurrentScopeName();
+		return JSON.stringify(scope);
+    },
+
+    sendPutRequest: function() {
+        var step = 'start sendPutRequest in Script Include';
+        try {
+            var snTableName = this.getParameter('table_name');
+            var appData = this.getParameter('payload');
+
+            step = 'get copy of sys_id';
+            var parentSysId = this.getParameter('sys_id');
+            // step = 'get every field from appData';
+            // var everyField = Object.keys(appData);
+            // step = 'convert to CSV';
+            // var csvFields = everyField.join(',');
+
+            // var instanceUrl = gs.getProperty('glide.servlet.uri');
+
+            step = 'while building endpoint 1';
+            // var endpoint = instanceUrl + 'api/now/table/' + snTableName;
+            var recordSysId = '';
+
+            if (Array.isArray(appData)) {
+                step = step + ' (appData is an array) ';
+                if (parentSysId !== undefined) {
+                    recordSysId = parentSysId;
+                  //  endpoint = endpoint + '/' + recordSysId + '?sysparm_fields=' + csvFields
+                  //      + '&sysparm_display_value=false&sysparm_exclude_reference_link=false&sysparm_fields=sys_id%2C%20vendor&sysparm_input_display_value=true&sysparm_suppress_auto_sys_field=false&sysparm_view=false&sysparm_query_no_domain=true';
+                } else {
+                    recordSysId = appData[0].sys_id;
+                  //  endpoint = endpoint + '/' + recordSysId + '?sysparm_fields=' + csvFields
+                  //      + '&sysparm_display_value=false&sysparm_exclude_reference_link=false&sysparm_input_display_value=false&sysparm_suppress_auto_sys_field=false&sysparm_view=false&sysparm_query_no_domain=true';
+                }
+            } else {
+                step = step + ' (appData not an array) ';
+                if (parentSysId !== undefined) {
+                    recordSysId = parentSysId;
+                 //   endpoint = endpoint + '/' + recordSysId + '?sysparm_fields=' + csvFields
+                 //       + '&sysparm_display_value=false&sysparm_exclude_reference_link=false&sysparm_input_display_value=false&sysparm_suppress_auto_sys_field=false&sysparm_view=false&sysparm_query_no_domain=true';
+                } else {
+                    recordSysId = appData.sys_id;
+                 //   endpoint = endpoint + '/' + recordSysId + '?sysparm_fields=' + csvFields
+                 //       + '&sysparm_display_value=false&sysparm_exclude_reference_link=false&sysparm_input_display_value=false&sysparm_suppress_auto_sys_field=false&sysparm_view=false&sysparm_query_no_domain=true';
+                }
+            }
+            step = 'recordSysId and endpoint ready';
+
+            var gr = new GlideRecord(snTableName);
+			var bAtLeastOne = false;
+			var getRslt = gr.get(recordSysId);
+			if(getRslt){
+				for (var key in gr) {
+					// Check if the key is a valid field and not a system property
+					if (gr[key] instanceof GlideElement) {
+						var grValue = gr.getValue(key);
+						if (appData.hasOwnProperty(key)) {
+							if(appData[key] !== grValue){
+								gr.setValue(key, appData[key]);
+								bAtLeastOne = true;
+							}
+						}
+					}
+				}
+				// Update the record
+				if(bAtLeastOne){
+					var updatedSysId = gr.update();
+					if (updatedSysId) {
+						var result = {};
+						var fields = gr.getFields();
+						for (var i = 0; i < fields.size(); i++) {
+							var fieldName = fields.get(i).getName();
+							var fieldValue = gr.getValue(fieldName);
+							result[fieldName] = fieldValue;
+						}
+						return JSON.stringify({'data': [result], 'status': 'success', 'error': ''});
+					} else {
+						throw new Error('Failed to update record ' + recordSysId);
+					}
+				}
+				else {
+						return JSON.stringify({'data': [getRslt], 'status': 'idle', 'error': ''});					
+				}
+            } else {
+                throw new Error('row ' + recordSysId + ' not found');
+            }
+        } catch (ex) {
+            gs.error('at step ' + step + ' Script Include sendPutRequest caught: ' + ex.message);
+            return JSON.stringify({'data': [], 'status': 'failed', 'error': ex.message});
+        }
+    },
+
+	getExperiment: function () {
+		try {
+			var gr = new GlideRecord('x_dosny_bit_procur_commodity');
+			if(!gr){
+				rowData['error'] = 'gr not initialized for x_dosny_bit_procur_bit_procurement_purchase_order';
+				return JSON.stringify(rowData);				
+			}
+			else {
+				var sys_id = this.getParameter('sys_id');
+				var getRslt = gr.get(sys_id);
+				var rowData = {};
+				if(getRslt){
+					for (var key in gr) {
+						// Check if the key is a valid field and not a system property
+						if (gr[key] instanceof GlideElement) {
+							var grValue = gr.getValue(key);
+							if(grValue === null || grValue === ''){
+								rowData[key] ='';
+							}
+							else if(grValue.contains('http')){
+								rowData[key] =''; // url effectively means a value was not chosen from a reference table
+
+							}
+							else {
+								rowData[key] = gr.getValue(key); // Get the field's value
+							}
+						}
+					}
+				}
+				return JSON.stringify(rowData); // Convert the rowData object to JSON
+			}
+		}
+		catch(siErr){
+			return JSON.stringify(siErr.message + ' from getExperiment');
+		}
+
+	},
+
+	getExperiment2: function() {
+		var allVendors = {
+			snTableName: 'vendors',
+			appData:[], // Set appData to a serializable initial value (e.g., null)
+			status: 'idle', // | 'loading' | 'succeeded' | 'failed'
+			error: null,
+		};
+		var vendorData = {};
+		vendorData = {
+			'name': 'anything', // Assuming there's a 'name' field in your table
+			'sys_id': 'something' // sys_id is a standard field
+		};
+
+		allVendors.appData.push(vendorData);
+
+		vendorData = {
+			'name': 'anything else', // Assuming there's a 'name' field in your table
+			'sys_id': 'something else' // sys_id is a standard field
+		};
+
+		allVendors.appData.push(vendorData);
+
+		try{
+			var tableName = 'core_company';
+			var gr = new GlideRecord(tableName);
+			if(!gr){
+				allVendors.status = 'failed';
+				allVendors.error = 'No GlideRecord found';	
+				return JSON.stringify(allVendors); // Return a stringified JSON object		
+			}
+			//gr.addQuery('active', true);
+			gr.addQuery('vendor', true);
+			gr.orderBy('name'); // Order by the 'name' field alphabetically
+			gr.query();
+
+			var aName = '';
+			var aSysId = '';
+			var vendorCount  = 0;
+			while (gr.next()) {
+				// Construct an object with name and sys_id for each row
+				vendorCount++;
+				aName = gr.name.toString();
+				aSysId = gr.sys_id.toString();
+				vendorData = {
+					'name': aName, // Assuming there's a 'name' field in your table
+					'sys_id': aSysId, // sys_id is a standard field
+					'whichOne': vendorCount,
+				};
+
+				// Push the constructed object into appData
+				allVendors.appData.push(vendorData);
+			}
+
+			var tableDescriptor = new GlideTableDescriptor(tableName);
+			if(!tableDescriptor){
+				allVendors.snTableName = 'GlideTableDescriptor is not Valid';
+
+			}
+			else {
+				if (tableDescriptor.isValid()) {
+					allVendors.snTableName = 'tableDescriptor is Valid';
+				}				
+			}
+
+		}
+		catch(siErr){
+			vendorData = {
+				'name': 'problem gr', // Assuming there's a 'name' field in your table
+				'sys_id': siErr.message // sys_id is a standard field
+			};
+			allVendors.appData.push(vendorData);
+		}
+
+		// Update status based on the result
+		if (allVendors.appData.length > 0) {
+			allVendors.status = 'succeeded';
+		} else {
+			allVendors.status = 'failed';
+			allVendors.error = 'No active vendors found';
+		}
+
+
+
+		return JSON.stringify(allVendors); // Return a stringified JSON object
+	},
+
+	getPOdata: function() {
+		var rowData = {};
+
+		try {
+			var gr = new GlideRecord('x_dosny_bit_procur_bit_procurement_purchase_order');
+			if(!gr){
+				rowData['error'] = 'gr not initialized for x_dosny_bit_procur_bit_procurement_purchase_order';
+				return JSON.stringify(rowData);				
+			}
+			else {
+				var sys_id = this.getParameter('sys_id');
+				var getRslt = gr.get(sys_id); // returns true or falase
+				if (getRslt) {
+					for (var key in gr) {
+						if (gr[key] instanceof GlideElement) {
+							var grValue = gr.getValue(key);
+							if(grValue === null || grValue === ''){
+								rowData[key] ='';
+							}
+							else if(grValue.contains('http')){
+								rowData[key] =''; // url effectively means a value was not chosen from a reference table
+
+							}
+							else {
+								rowData[key] = gr.getValue(key); // Get the field's value
+							}
+						}
+					}
+					if(Object.keys(rowData).length < 1){
+						rowData['error'] = 'rowData is empty for ' + sys_id;
+						return JSON.stringify(rowData); 
+					}
+					return JSON.stringify(rowData); 
+				} else {
+					rowData['error'] = 'SN SI getPOdata Record not found for ' + sys_id;
+					return JSON.stringify(rowData);
+				}
+			}
+		}
+		catch (siErr){
+			rowData['error'] = 'caught ' + siErr.message;
+			return JSON.stringify(rowData);
+		}
+
+    },
+
+	putPOdata: function() {
+        var tableName = this.getParameter('table_name');
+        var sysId = this.getParameter('sys_id');
+        
+        if (!tableName || !sysId) {
+            return JSON.stringify({status: 'failure', message: 'Missing table_name or sys_id parameter'});
+        }
+        
+        var gr = new GlideRecord(tableName);
+        if (gr.get(sysId)) {
+            var params = this.request.getParameters();
+            for (var param in params) {
+                if (param !== 'table_name' && param !== 'sys_id' && param !== 'sysparm_name') {
+                    gr.setValue(param, params[param]);
+                }
+            }
+            gr.update();
+            return JSON.stringify({status: 'success', data: gr});
+        } else {
+            return JSON.stringify({status: 'failure', message: 'SN SI putPOdata Record not found (' + sysId + ')'});
+        }		
+	},
+
+    // Method to create a new token
+    createToken: function(userId) {
+        // Generate a token (for simplicity, using a UUID)
+        var newToken = gs.generateGUID();
+        
+        // Set token expiration (e.g., 1 hour from now)
+        // Set token expiration (e.g., 1 hour from now)
+        var expiration = new GlideDateTime();
+        var minutesToAdd = 60; // Number of minutes to add (1 hour)
+        expiration.addSeconds(minutesToAdd * 60);
+
+        // Store the token in the UserTokens table
+        var gr = new GlideRecord('x_elsr_react_app_dsporeactapptokens');
+		gr.addQuery('name', userId);
+		gr.query();
+
+        if (gr.next()) {
+			gr.setValue('expires', expiration);
+			var currToken = gr.getValue('token')
+			if(!currToken){
+				gr.setValue('token', newToken);
+				return newToken;
+			}
+			else {
+				return currToken;
+			}
+        }
+		else {
+			gr.initialize();
+			gr.setValue('user', userId);
+			gr.setValue('token', newToken);
+			gr.setValue('expiration', expiration);
+			gr.insert();
+            return newToken;			
+		}
+
+    },
+
+    // Method to retrieve a valid token
+    getToken: function(userId) {
+        var gr = new GlideRecord('x_elsr_react_app_dsporeactapptokens');
+        gr.addQuery('name', userId);
+        gr.addQuery('expires', '>', new GlideDateTime());
+        gr.query();
+
+        if (gr.next()) {
+            return gr.getValue('token');
+        } else {
+            // If no valid token is found, create a new one
+            return this.createToken(userId);
+        }
+    },
+
+	sendPutRequest1: function(data) {
+        var step = 'start sendPutRequest in Script Include';
+        var snTableName = data.table_name;
+		var aUserId = data.currUser;
+        var appData = data.payload;
+
+        step = 'get copy of sys_id';
+        var parentSysId = data.sys_id;
+        step = 'get every field from appData';
+        var everyField = Object.keys(appData);
+        step = 'convert to CSV';
+        var csvFields = everyField.join(',');
+        
+        var instanceUrl = 'https://nycdsdev1.service-now.com';
+
+        step = 'while building endpoint 1';
+        var endpoint = instanceUrl + '/api/now/table/' + snTableName;
+        var recordSysId = '';
+        
+        if (Array.isArray(appData)) {
+            step = step + ' (appData is an array) ';
+            if (parentSysId !== undefined) {
+                recordSysId = parentSysId;
+                endpoint = endpoint + '/' + recordSysId + '?sysparm_fields=' + csvFields
+                    + '&sysparm_display_value=false&sysparm_exclude_reference_link=false&sysparm_fields=sys_id%2C%20vendor&sysparm_input_display_value=true&sysparm_suppress_auto_sys_field=false&sysparm_view=false&sysparm_query_no_domain=true';
+            } else {
+                recordSysId = appData[0].sys_id;
+                endpoint = endpoint + '/' + recordSysId + '?sysparm_fields=' + csvFields
+                    + '&sysparm_display_value=false&sysparm_exclude_reference_link=false&sysparm_input_display_value=false&sysparm_suppress_auto_sys_field=false&sysparm_view=false&sysparm_query_no_domain=true';
+            }
+        } else {
+            step = step + ' (appData not an array) ';
+            if (parentSysId !== undefined) {
+                recordSysId = parentSysId;
+                endpoint = endpoint + '/' + recordSysId + '?sysparm_fields=' + csvFields
+                    + '&sysparm_display_value=false&sysparm_exclude_reference_link=false&sysparm_input_display_value=false&sysparm_suppress_auto_sys_field=false&sysparm_view=false&sysparm_query_no_domain=true';
+            } else {
+                recordSysId = appData.sys_id;
+                endpoint = endpoint + '/' + recordSysId + '?sysparm_fields=' + csvFields
+                    + '&sysparm_display_value=false&sysparm_exclude_reference_link=false&sysparm_input_display_value=false&sysparm_suppress_auto_sys_field=false&sysparm_view=false&sysparm_query_no_domain=true';
+            }
+        }
+        step = 'endpoint ready';
+
+        var requestBody = appData; 
+
+        step = 'initialize restMessage';
+        var restMessage = new sn_ws.RESTMessageV2();
+
+        step = 'initialize endpoint';
+        restMessage.setEndpoint(endpoint);
+        
+        restMessage.setHttpMethod('PUT');
+        restMessage.setRequestHeader('Content-Type', 'application/json');
+        restMessage.setRequestBody(requestBody);
+
+        step = 'retrieve user token';
+		var userToken = this.getToken(aUserId);
+		gs.info('restMessage userToken is: ' + userToken);
+        restMessage.setRequestHeader('Authorization', 'Bearer ' + userToken);
+
+        step = 'before sendPutRequest try';
+        try {
+            var response = restMessage.execute();
+            step = 'getBody from response';
+			gs.info('restMessage endpoint is: ' + endpoint);
+			gs.info('restMessage response is: ' + JSON.parse(response));
+            var responseBody = response.getBody();
+            step = 'status from response';
+            var httpStatus = response.getStatusCode();
+            if (httpStatus > 299) {
+                throw new Error('this http status unexpected: ' + httpStatus);
+            }
+            step = 'return responseBody';
+            return responseBody;
+        } catch (ex) {
+			var tmp = ex.message;
+            var myMessage = JSON.stringify({'data': [], 'status': 'failed', 'error': tmp});
+            gs.error('at step ' + step + ' Script Include sendPutRequest caught: ' + tmp);
+            return myMessage;
+        }
+    },
+
+    testSendPutRequest1: function() {
+        var myScriptInclude = new ReactPOappScriptInclude();
+        var data = {
+            table_name: 'x_dosny_bit_procur_bit_procurement_purchase_order',
+            sys_id: '919b83701bba461076f215ff034bcb1a', // Replace with a valid sys_id
+            payload: {
+                extended_description: 'brand new text',
+                // Include more fields as needed
+            }
+        };
+        var response = myScriptInclude.sendPutRequest(data);
+        gs.info('Response: ' + response);
+    },
+
+	// getAnything: function() {
+	// 	return JSON.stringify({aStr: 'correct response from getAnything'});
+	// },
+
+    getAllVendorNames: function() {
+		var allVendors = {
+			snTableName: 'vendors',
+			appData:[], // Set appData to a serializable initial value (e.g., null)
+			status: 'idle', // | 'loading' | 'succeeded' | 'failed'
+			error: null,
+		};
+
+		var tableName = 'core_company';
+		// var tableDescriptor = new GlideTableDescriptor(tableName);
+		// java.lang.SecurityException: GlideTableDescriptor is not allowed in scoped applications
+
+		try{
+			var gr = new GlideRecord(tableName);
+			if(!gr){
+				allVendors.status = 'failed';
+				allVendors.error = 'No GlideRecord found';	
+				return JSON.stringify(allVendors); // Return a stringified JSON object		
+			}
+			// gr.addQuery('active', true);
+			gr.addQuery('vendor', true);
+			gr.orderBy('name'); // Order by the 'name' field alphabetically
+			gr.query();
+			var vendorData = {};
+			var aName = '';
+			var aSysId = '';
+			while (gr.next()) {
+				// Construct an object with name and sys_id for each row
+				try{
+					aName = gr.name.toString();
+					aSysId = gr.sys_id.toString();
+					vendorData = {
+						'name': aName, // Assuming there's a 'name' field in your table
+						'sys_id': aSysId // sys_id is a standard field
+					};
+				}
+				catch(siErr){
+					vendorData = {
+						'name': 'problem gr', // Assuming there's a 'name' field in your table
+						'sys_id': siErr.message // sys_id is a standard field
+					};
+				}
+				// Push the constructed object into appData
+				allVendors.appData.push(vendorData);
+			}
+
+			// Update status based on the result
+			if (allVendors.appData.length > 0) {
+				allVendors.status = 'succeeded';
+			} else {
+				allVendors.status = 'failed';
+				allVendors.error = 'No active vendors found';
+			}
+		}
+		catch (outerSIerr){
+			allVendors.status = 'failed';
+			allVendors.error = 'caught: ' + outerSIerr.message;
+		}
+
+		return JSON.stringify(allVendors); // Return a stringified JSON object
+	},
+
+	getVendorData: function() {
+		var rowData = {};
+
+		try {
+			var sys_id = this.getParameter('sys_id');
+			var gr = new GlideRecord('core_company');
+			if(!gr){
+				rowData['error'] = 'gr not initialized for core_company';
+				return JSON.stringify(rowData);				
+			}
+			// rowData['Col aSysID'] = 'Col ' + sys_id + '<br /><br />';
+			var getRslt = gr.get(sys_id); // returns true or falase
+			if (getRslt) {
+				// Iterate over all fields in the record
+				for (var key in gr) {
+					// Check if the key is a valid field and not a system property
+					if (gr[key] instanceof GlideElement) {
+						var grValue = gr.getValue(key);
+						if(grValue === null || grValue === ''){
+							rowData[key] ='';
+						}
+						else if(grValue.contains('http')){
+							rowData[key] ='anySysId'; // url effectively means a value was not chosen from a reference table
+
+						}
+						else {
+							rowData[key] = gr.getValue(key); // Get the field's value
+						}
+					}
+				}
+				if(Object.keys(rowData).length < 1){
+					return JSON.stringify({ error: 'rowData is empty for ' + sys_id });
+				}
+			} else {
+				rowData['error'] = 'SN SI getVendordata Record not found for ' + sys_id;
+			}
+		}
+		catch (error){
+			rowData['error'] = 'caught ' + error.message;
+		}
+		return JSON.stringify(rowData);
+	},
+	
+    getAllCommodityCodes: function() {
+		var allCommodityCodes = {
+			snTableName: 'commoditycodes',
+			appData:[], // Set appData to a serializable initial value (e.g., null)
+			status: 'idle', // | 'loading' | 'succeeded' | 'failed'
+			error: null,
+		};
+
+		var tableName = 'x_dosny_bit_procur_commodity';
+
+		try{
+			var step = 'first';
+			var gr = new GlideRecord(tableName);
+			gr.query('u_string_1','L1 4')
+			gr.orderBy('name'); // Order by the 'name' field alphabetically
+			gr.query();
+
+			step = 'second';
+			while (gr.next()) {
+				// Construct an object with name and sys_id for each row
+				step = 'second a';
+				var oneRow = {
+					name: gr.name.toString(), // Assuming there's a 'name' field in your table
+					code: gr.commodity_code.toString(),
+					sys_id: gr.sys_id.toString() // sys_id is a standard field
+				};
+				step = 'second b';
+
+				// Push the constructed object into appData
+				allCommodityCodes.appData.push(oneRow);
+
+				step = 'second c';
+
+
+			}
+			step = 'thrid';
+			// Update status based on the result
+			if (allCommodityCodes.appData.length > 0) {
+				allCommodityCodes.status = 'succeeded';
+			} else {
+				allCommodityCodes.status = 'failed';
+				allCommodityCodes.error = 'No commodity codes found';
+			}
+			step = 'fourth';
+		}
+		catch (error){
+			allCommodityCodes.status = 'failed';
+			allCommodityCodes.error = 'at step ' + step + ', it caught: ' + error.message;
+		}
+
+		return JSON.stringify(allCommodityCodes); // Return a stringified JSON object
+	},
+
+	getCommodityCodeData: function() {
+		var rowData = {};
+
+		try {
+			var sys_id = this.getParameter('sys_id');
+			var gr = new GlideRecord('x_dosny_bit_procur_commodity');
+			if(!gr){
+				rowData['error'] = 'gr not initialized for x_dosny_bit_procur_commodity';
+				return JSON.stringify(rowData);				
+			}
+			// rowData['Col aSysID'] = 'Col ' + sys_id + '<br /><br />';
+			var getRslt = gr.get(sys_id); // returns true or falase
+			if (getRslt) {
+				// Iterate over all fields in the record
+				for (var key in gr) {
+					// Check if the key is a valid field and not a system property
+					if (gr[key] instanceof GlideElement) {
+						var grValue = gr.getValue(key);
+						if(grValue === null || grValue === ''){
+							rowData[key] ='';
+						}
+						else if(grValue.contains('http')){
+							rowData[key] ='anySysId'; // url effectively means a value was not chosen from a reference table
+
+						}
+						else {
+							rowData[key] = gr.getValue(key); // Get the field's value
+						}
+					}
+				}
+				if(Object.keys(rowData).length < 1){
+					return JSON.stringify({ error: 'rowData is empty for ' + sys_id });
+				}
+			} else {
+				rowData['error'] = 'SN SI getCommodityCodeData Record not found for ' + sys_id;
+			}
+		}
+		catch (error){
+			rowData['error'] = 'caught ' + error.message;
+		}
+		return JSON.stringify(rowData);
+
+	},
+
+    getCredentials: function() {
+		/*
+			Retrieve User ID:
+			Use gs.getUserID() to get the current user's Sys ID.
+
+			Get User Record:
+			Fetch the user record from the sys_user table using the GlideRecord class.
+
+			Retrieve User Preferences:
+			Use gs.getUser().getPreference('user_credentials') to get the stored credentials from user preferences.
+
+			Encode Credentials:
+			Use GlideStringUtil.base64Encode(credentials) to encode the credentials in base64 format.
+
+			Return Encoded Credentials:
+			If credentials are found and encoded, return the encoded string.
+			Handle cases where credentials or user are not found.
+			By storing and retrieving the credentials in user preferences, you avoid using 
+			the restricted GlideEncrypter class and maintain secure handling of sensitive 
+			information within ServiceNow.
+		*/
+		try {
+			// Retrieve the current user's Sys ID
+			var userSysId = gs.getUserID();
+			var user = new GlideRecord('sys_user');
+			if (user.get(userSysId)) {
+				var userName = user.user_name;
+					
+				// Retrieve the API token from user preferences (or another field)
+				var apiToken = gs.getUser().getPreference('user_api_token'); // Change 'user_api_token' to the correct preference key
+				if (apiToken) {
+					// Combine user_name and API token
+					var combinedCredentials = userName + ':' + apiToken;
+					var encodedCredentials = GlideStringUtil.base64Encode(combinedCredentials);
+					return encodedCredentials;
+				} else {
+					throw new Error('API token not found for ' + userName);
+				}
+			} else {
+				throw new Error('User not found: ' + userSysId);
+			}
+		} catch (catError) {
+			return catError.message;
+		}
+	},
+
+    type: 'ReactPOappScriptInclude'
+});
+]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>sfarkas</sys_created_by>
+        <sys_created_on>2024-04-08 17:16:15</sys_created_on>
+        <sys_id>e9123bbf1bdd82106c1036ef034bcbd3</sys_id>
+        <sys_mod_count>172</sys_mod_count>
+        <sys_name>ReactPOappScriptInclude</sys_name>
+        <sys_package display_value="DSpoReactApp" source="x_elsr_react_app">f2ba728813da041032813092e144b01f</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="DSpoReactApp">f2ba728813da041032813092e144b01f</sys_scope>
+        <sys_update_name>sys_script_include_e9123bbf1bdd82106c1036ef034bcbd3</sys_update_name>
+        <sys_updated_by>sfarkas</sys_updated_by>
+        <sys_updated_on>2024-07-18 16:02:05</sys_updated_on>
+    </sys_script_include>
+    <sys_update_version action="INSERT_OR_UPDATE">
+        <action>DELETE</action>
+        <application display_value="DSpoReactApp">f2ba728813da041032813092e144b01f</application>
+        <file_path/>
+        <instance_id>d1068f71dbe79b08439ef70fbf96194a</instance_id>
+        <instance_name>nycdsdev1</instance_name>
+        <name>sys_script_include_e9123bbf1bdd82106c1036ef034bcbd3</name>
+        <payload>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;record_update table="sys_script_include"&gt;&lt;sys_script_include action="INSERT_OR_UPDATE"&gt;&lt;access&gt;package_private&lt;/access&gt;&lt;active&gt;false&lt;/active&gt;&lt;api_name&gt;x_elsr_react_app.ReactPOappScriptInclude&lt;/api_name&gt;&lt;caller_access/&gt;&lt;client_callable&gt;false&lt;/client_callable&gt;&lt;description&gt;UI Action for Green Form needs to use the credentials of the person logged in.&amp;#13;
+&amp;#13;
+Caller Access Settings:&amp;#13;
+None: This setting means there are no specific restrictions or tracking on who can call this Script Include. If "Accessible from" is set to allow client calls, then client scripts can use GlideAjax to call this Script Include without any additional checks or tracking. In the context of a UI Page using React and createAsyncThunk, this setting would allow the asynchronous actions defined by createAsyncThunk to call the Script Include without any restrictions, assuming those calls are properly authenticated and authorized by ServiceNow's standard security mechanisms.&amp;#13;
+&amp;#13;
+Caller Restriction: This setting adds an extra layer of security by restricting which scripts can call this Script Include. You can specify which roles are required to call the Script Include. If a UI Page's script or a createAsyncThunk action attempts to call this Script Include without the required roles, the call will be denied. This is useful for scenarios where the Script Include performs sensitive operations that should only be accessible by users with specific roles.&amp;#13;
+&amp;#13;
+Caller Tracking: This option enables logging of all calls to this Script Include. It helps in auditing and tracking the usage of Script Includes, especially those that are critical or could impact system performance. For a UI Page using React and createAsyncThunk, enabling caller tracking means that every call from the UI Page to the Script Include will be logged, providing visibility into how and when the Script Include is being used.&amp;#13;
+&amp;#13;
+Implications for UI Pages Using React and createAsyncThunk:&amp;#13;
+None: The UI Page can freely make calls to the Script Include, provided other security checks are passed. This is straightforward and poses no additional development considerations.&amp;#13;
+&amp;#13;
+Caller Restriction: You must ensure that the users interacting with the UI Page have the necessary roles to invoke the Script Include. This could impact the design of your UI Page and the user experience, especially if roles restrict access to certain functionalities.&amp;#13;
+&amp;#13;
+You need to grant your scoped application access to the sys_user_token (Global) table. This can be done by modifying the cross-scope access settings. In the Target Table field, select the table you want to access (e.g., sys_user_token).&amp;#13;
+Part of the benefit of scoped applications is they can allow or deny access from other tables. This allows them to keep 'private tables' for their application data or allow sharing of the information. This has nothing to do with the user's security, it is application-to-application security. If you go to the tables you are trying to write, you'll see an Application Access tab that defines the cross application access.&amp;#13;
+&amp;#13;
+Caller Tracking: While this does not directly impact the ability of the UI Page to call the Script Include, it's important to be aware that calls will be logged. This could be relevant for performance considerations and auditing purposes.&lt;/description&gt;&lt;name&gt;ReactPOappScriptInclude&lt;/name&gt;&lt;script&gt;&lt;![CDATA[var ReactPOappScriptInclude = Class.create();
+ReactPOappScriptInclude.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
+	initialize: function() {},
+	canIconnect: function() {
+		return JSON.stringify('correct response from canIconnect');
+	},
+	getScope: function() {
+        // return gs.getCurrentScopeName();
+        // var response = {
+		// 	answer: gs.getCurrentScopeName(),
+        //  };
+
+        // return JSON.encode(response);
+		// Build the payload. You can return additional data if needed.
+		// gs.addInfoMessage(JSON.stringify('getScope triggered'));
+		var scope = gs.getCurrentScopeName();
+		return JSON.stringify(scope);
+    },
+
+    sendPutRequest: function() {
+        var step = 'start sendPutRequest in Script Include';
+        try {
+            var snTableName = this.getParameter('table_name');
+            var appData = this.getParameter('payload');
+
+            step = 'get copy of sys_id';
+            var parentSysId = this.getParameter('sys_id');
+            // step = 'get every field from appData';
+            // var everyField = Object.keys(appData);
+            // step = 'convert to CSV';
+            // var csvFields = everyField.join(',');
+
+            // var instanceUrl = gs.getProperty('glide.servlet.uri');
+
+            step = 'while building endpoint 1';
+            // var endpoint = instanceUrl + 'api/now/table/' + snTableName;
+            var recordSysId = '';
+
+            if (Array.isArray(appData)) {
+                step = step + ' (appData is an array) ';
+                if (parentSysId !== undefined) {
+                    recordSysId = parentSysId;
+                  //  endpoint = endpoint + '/' + recordSysId + '?sysparm_fields=' + csvFields
+                  //      + '&amp;sysparm_display_value=false&amp;sysparm_exclude_reference_link=false&amp;sysparm_fields=sys_id%2C%20vendor&amp;sysparm_input_display_value=true&amp;sysparm_suppress_auto_sys_field=false&amp;sysparm_view=false&amp;sysparm_query_no_domain=true';
+                } else {
+                    recordSysId = appData[0].sys_id;
+                  //  endpoint = endpoint + '/' + recordSysId + '?sysparm_fields=' + csvFields
+                  //      + '&amp;sysparm_display_value=false&amp;sysparm_exclude_reference_link=false&amp;sysparm_input_display_value=false&amp;sysparm_suppress_auto_sys_field=false&amp;sysparm_view=false&amp;sysparm_query_no_domain=true';
+                }
+            } else {
+                step = step + ' (appData not an array) ';
+                if (parentSysId !== undefined) {
+                    recordSysId = parentSysId;
+                 //   endpoint = endpoint + '/' + recordSysId + '?sysparm_fields=' + csvFields
+                 //       + '&amp;sysparm_display_value=false&amp;sysparm_exclude_reference_link=false&amp;sysparm_input_display_value=false&amp;sysparm_suppress_auto_sys_field=false&amp;sysparm_view=false&amp;sysparm_query_no_domain=true';
+                } else {
+                    recordSysId = appData.sys_id;
+                 //   endpoint = endpoint + '/' + recordSysId + '?sysparm_fields=' + csvFields
+                 //       + '&amp;sysparm_display_value=false&amp;sysparm_exclude_reference_link=false&amp;sysparm_input_display_value=false&amp;sysparm_suppress_auto_sys_field=false&amp;sysparm_view=false&amp;sysparm_query_no_domain=true';
+                }
+            }
+            step = 'recordSysId and endpoint ready';
+
+            var gr = new GlideRecord(snTableName);
+			var bAtLeastOne = false;
+			var getRslt = gr.get(recordSysId);
+			if(getRslt){
+				for (var key in gr) {
+					// Check if the key is a valid field and not a system property
+					if (gr[key] instanceof GlideElement) {
+						var grValue = gr.getValue(key);
+						if (appData.hasOwnProperty(key)) {
+							if(appData[key] !== grValue){
+								gr.setValue(key, appData[key]);
+								bAtLeastOne = true;
+							}
+						}
+					}
+				}
+				// Update the record
+				if(bAtLeastOne){
+					var updatedSysId = gr.update();
+					if (updatedSysId) {
+						var result = {};
+						var fields = gr.getFields();
+						for (var i = 0; i &lt; fields.size(); i++) {
+							var fieldName = fields.get(i).getName();
+							var fieldValue = gr.getValue(fieldName);
+							result[fieldName] = fieldValue;
+						}
+						return JSON.stringify({'data': [result], 'status': 'success', 'error': ''});
+					} else {
+						throw new Error('Failed to update record ' + recordSysId);
+					}
+				}
+				else {
+						return JSON.stringify({'data': [getRslt], 'status': 'idle', 'error': ''});					
+				}
+            } else {
+                throw new Error('row ' + recordSysId + ' not found');
+            }
+        } catch (ex) {
+            gs.error('at step ' + step + ' Script Include sendPutRequest caught: ' + ex.message);
+            return JSON.stringify({'data': [], 'status': 'failed', 'error': ex.message});
+        }
+    },
+
+	getExperiment: function () {
+		try {
+			var gr = new GlideRecord('x_dosny_bit_procur_commodity');
+			if(!gr){
+				rowData['error'] = 'gr not initialized for x_dosny_bit_procur_bit_procurement_purchase_order';
+				return JSON.stringify(rowData);				
+			}
+			else {
+				var sys_id = this.getParameter('sys_id');
+				var getRslt = gr.get(sys_id);
+				var rowData = {};
+				if(getRslt){
+					for (var key in gr) {
+						// Check if the key is a valid field and not a system property
+						if (gr[key] instanceof GlideElement) {
+							var grValue = gr.getValue(key);
+							if(grValue === null || grValue === ''){
+								rowData[key] ='';
+							}
+							else if(grValue.contains('http')){
+								rowData[key] =''; // url effectively means a value was not chosen from a reference table
+
+							}
+							else {
+								rowData[key] = gr.getValue(key); // Get the field's value
+							}
+						}
+					}
+				}
+				return JSON.stringify(rowData); // Convert the rowData object to JSON
+			}
+		}
+		catch(siErr){
+			return JSON.stringify(siErr.message + ' from getExperiment');
+		}
+
+	},
+
+	getExperiment2: function() {
+		var allVendors = {
+			snTableName: 'vendors',
+			appData:[], // Set appData to a serializable initial value (e.g., null)
+			status: 'idle', // | 'loading' | 'succeeded' | 'failed'
+			error: null,
+		};
+		var vendorData = {};
+		vendorData = {
+			'name': 'anything', // Assuming there's a 'name' field in your table
+			'sys_id': 'something' // sys_id is a standard field
+		};
+
+		allVendors.appData.push(vendorData);
+
+		vendorData = {
+			'name': 'anything else', // Assuming there's a 'name' field in your table
+			'sys_id': 'something else' // sys_id is a standard field
+		};
+
+		allVendors.appData.push(vendorData);
+
+		try{
+			var tableName = 'core_company';
+			var gr = new GlideRecord(tableName);
+			if(!gr){
+				allVendors.status = 'failed';
+				allVendors.error = 'No GlideRecord found';	
+				return JSON.stringify(allVendors); // Return a stringified JSON object		
+			}
+			//gr.addQuery('active', true);
+			gr.addQuery('vendor', true);
+			gr.orderBy('name'); // Order by the 'name' field alphabetically
+			gr.query();
+
+			var aName = '';
+			var aSysId = '';
+			var vendorCount  = 0;
+			while (gr.next()) {
+				// Construct an object with name and sys_id for each row
+				vendorCount++;
+				aName = gr.name.toString();
+				aSysId = gr.sys_id.toString();
+				vendorData = {
+					'name': aName, // Assuming there's a 'name' field in your table
+					'sys_id': aSysId, // sys_id is a standard field
+					'whichOne': vendorCount,
+				};
+
+				// Push the constructed object into appData
+				allVendors.appData.push(vendorData);
+			}
+
+			var tableDescriptor = new GlideTableDescriptor(tableName);
+			if(!tableDescriptor){
+				allVendors.snTableName = 'GlideTableDescriptor is not Valid';
+
+			}
+			else {
+				if (tableDescriptor.isValid()) {
+					allVendors.snTableName = 'tableDescriptor is Valid';
+				}				
+			}
+
+		}
+		catch(siErr){
+			vendorData = {
+				'name': 'problem gr', // Assuming there's a 'name' field in your table
+				'sys_id': siErr.message // sys_id is a standard field
+			};
+			allVendors.appData.push(vendorData);
+		}
+
+		// Update status based on the result
+		if (allVendors.appData.length &gt; 0) {
+			allVendors.status = 'succeeded';
+		} else {
+			allVendors.status = 'failed';
+			allVendors.error = 'No active vendors found';
+		}
+
+
+
+		return JSON.stringify(allVendors); // Return a stringified JSON object
+	},
+
+	getPOdata: function() {
+		var rowData = {};
+
+		try {
+			var gr = new GlideRecord('x_dosny_bit_procur_bit_procurement_purchase_order');
+			if(!gr){
+				rowData['error'] = 'gr not initialized for x_dosny_bit_procur_bit_procurement_purchase_order';
+				return JSON.stringify(rowData);				
+			}
+			else {
+				var sys_id = this.getParameter('sys_id');
+				var getRslt = gr.get(sys_id); // returns true or falase
+				if (getRslt) {
+					for (var key in gr) {
+						if (gr[key] instanceof GlideElement) {
+							var grValue = gr.getValue(key);
+							if(grValue === null || grValue === ''){
+								rowData[key] ='';
+							}
+							else if(grValue.contains('http')){
+								rowData[key] =''; // url effectively means a value was not chosen from a reference table
+
+							}
+							else {
+								rowData[key] = gr.getValue(key); // Get the field's value
+							}
+						}
+					}
+					if(Object.keys(rowData).length &lt; 1){
+						rowData['error'] = 'rowData is empty for ' + sys_id;
+						return JSON.stringify(rowData); 
+					}
+					return JSON.stringify(rowData); 
+				} else {
+					rowData['error'] = 'SN SI getPOdata Record not found for ' + sys_id;
+					return JSON.stringify(rowData);
+				}
+			}
+		}
+		catch (siErr){
+			rowData['error'] = 'caught ' + siErr.message;
+			return JSON.stringify(rowData);
+		}
+
+    },
+
+	putPOdata: function() {
+        var tableName = this.getParameter('table_name');
+        var sysId = this.getParameter('sys_id');
+        
+        if (!tableName || !sysId) {
+            return JSON.stringify({status: 'failure', message: 'Missing table_name or sys_id parameter'});
+        }
+        
+        var gr = new GlideRecord(tableName);
+        if (gr.get(sysId)) {
+            var params = this.request.getParameters();
+            for (var param in params) {
+                if (param !== 'table_name' &amp;&amp; param !== 'sys_id' &amp;&amp; param !== 'sysparm_name') {
+                    gr.setValue(param, params[param]);
+                }
+            }
+            gr.update();
+            return JSON.stringify({status: 'success', data: gr});
+        } else {
+            return JSON.stringify({status: 'failure', message: 'SN SI putPOdata Record not found (' + sysId + ')'});
+        }		
+	},
+
+    // Method to create a new token
+    createToken: function(userId) {
+        // Generate a token (for simplicity, using a UUID)
+        var newToken = gs.generateGUID();
+        
+        // Set token expiration (e.g., 1 hour from now)
+        // Set token expiration (e.g., 1 hour from now)
+        var expiration = new GlideDateTime();
+        var minutesToAdd = 60; // Number of minutes to add (1 hour)
+        expiration.addSeconds(minutesToAdd * 60);
+
+        // Store the token in the UserTokens table
+        var gr = new GlideRecord('x_elsr_react_app_dsporeactapptokens');
+		gr.addQuery('name', userId);
+		gr.query();
+
+        if (gr.next()) {
+			gr.setValue('expires', expiration);
+			var currToken = gr.getValue('token')
+			if(!currToken){
+				gr.setValue('token', newToken);
+				return newToken;
+			}
+			else {
+				return currToken;
+			}
+        }
+		else {
+			gr.initialize();
+			gr.setValue('user', userId);
+			gr.setValue('token', newToken);
+			gr.setValue('expiration', expiration);
+			gr.insert();
+            return newToken;			
+		}
+
+    },
+
+    // Method to retrieve a valid token
+    getToken: function(userId) {
+        var gr = new GlideRecord('x_elsr_react_app_dsporeactapptokens');
+        gr.addQuery('name', userId);
+        gr.addQuery('expires', '&gt;', new GlideDateTime());
+        gr.query();
+
+        if (gr.next()) {
+            return gr.getValue('token');
+        } else {
+            // If no valid token is found, create a new one
+            return this.createToken(userId);
+        }
+    },
+
+	sendPutRequest1: function(data) {
+        var step = 'start sendPutRequest in Script Include';
+        var snTableName = data.table_name;
+		var aUserId = data.currUser;
+        var appData = data.payload;
+
+        step = 'get copy of sys_id';
+        var parentSysId = data.sys_id;
+        step = 'get every field from appData';
+        var everyField = Object.keys(appData);
+        step = 'convert to CSV';
+        var csvFields = everyField.join(',');
+        
+        var instanceUrl = 'https://nycdsdev1.service-now.com';
+
+        step = 'while building endpoint 1';
+        var endpoint = instanceUrl + '/api/now/table/' + snTableName;
+        var recordSysId = '';
+        
+        if (Array.isArray(appData)) {
+            step = step + ' (appData is an array) ';
+            if (parentSysId !== undefined) {
+                recordSysId = parentSysId;
+                endpoint = endpoint + '/' + recordSysId + '?sysparm_fields=' + csvFields
+                    + '&amp;sysparm_display_value=false&amp;sysparm_exclude_reference_link=false&amp;sysparm_fields=sys_id%2C%20vendor&amp;sysparm_input_display_value=true&amp;sysparm_suppress_auto_sys_field=false&amp;sysparm_view=false&amp;sysparm_query_no_domain=true';
+            } else {
+                recordSysId = appData[0].sys_id;
+                endpoint = endpoint + '/' + recordSysId + '?sysparm_fields=' + csvFields
+                    + '&amp;sysparm_display_value=false&amp;sysparm_exclude_reference_link=false&amp;sysparm_input_display_value=false&amp;sysparm_suppress_auto_sys_field=false&amp;sysparm_view=false&amp;sysparm_query_no_domain=true';
+            }
+        } else {
+            step = step + ' (appData not an array) ';
+            if (parentSysId !== undefined) {
+                recordSysId = parentSysId;
+                endpoint = endpoint + '/' + recordSysId + '?sysparm_fields=' + csvFields
+                    + '&amp;sysparm_display_value=false&amp;sysparm_exclude_reference_link=false&amp;sysparm_input_display_value=false&amp;sysparm_suppress_auto_sys_field=false&amp;sysparm_view=false&amp;sysparm_query_no_domain=true';
+            } else {
+                recordSysId = appData.sys_id;
+                endpoint = endpoint + '/' + recordSysId + '?sysparm_fields=' + csvFields
+                    + '&amp;sysparm_display_value=false&amp;sysparm_exclude_reference_link=false&amp;sysparm_input_display_value=false&amp;sysparm_suppress_auto_sys_field=false&amp;sysparm_view=false&amp;sysparm_query_no_domain=true';
+            }
+        }
+        step = 'endpoint ready';
+
+        var requestBody = appData; 
+
+        step = 'initialize restMessage';
+        var restMessage = new sn_ws.RESTMessageV2();
+
+        step = 'initialize endpoint';
+        restMessage.setEndpoint(endpoint);
+        
+        restMessage.setHttpMethod('PUT');
+        restMessage.setRequestHeader('Content-Type', 'application/json');
+        restMessage.setRequestBody(requestBody);
+
+        step = 'retrieve user token';
+		var userToken = this.getToken(aUserId);
+		gs.info('restMessage userToken is: ' + userToken);
+        restMessage.setRequestHeader('Authorization', 'Bearer ' + userToken);
+
+        step = 'before sendPutRequest try';
+        try {
+            var response = restMessage.execute();
+            step = 'getBody from response';
+			gs.info('restMessage endpoint is: ' + endpoint);
+			gs.info('restMessage response is: ' + JSON.parse(response));
+            var responseBody = response.getBody();
+            step = 'status from response';
+            var httpStatus = response.getStatusCode();
+            if (httpStatus &gt; 299) {
+                throw new Error('this http status unexpected: ' + httpStatus);
+            }
+            step = 'return responseBody';
+            return responseBody;
+        } catch (ex) {
+			var tmp = ex.message;
+            var myMessage = JSON.stringify({'data': [], 'status': 'failed', 'error': tmp});
+            gs.error('at step ' + step + ' Script Include sendPutRequest caught: ' + tmp);
+            return myMessage;
+        }
+    },
+
+    testSendPutRequest1: function() {
+        var myScriptInclude = new ReactPOappScriptInclude();
+        var data = {
+            table_name: 'x_dosny_bit_procur_bit_procurement_purchase_order',
+            sys_id: '919b83701bba461076f215ff034bcb1a', // Replace with a valid sys_id
+            payload: {
+                extended_description: 'brand new text',
+                // Include more fields as needed
+            }
+        };
+        var response = myScriptInclude.sendPutRequest(data);
+        gs.info('Response: ' + response);
+    },
+
+	// getAnything: function() {
+	// 	return JSON.stringify({aStr: 'correct response from getAnything'});
+	// },
+
+    getAllVendorNames: function() {
+		var allVendors = {
+			snTableName: 'vendors',
+			appData:[], // Set appData to a serializable initial value (e.g., null)
+			status: 'idle', // | 'loading' | 'succeeded' | 'failed'
+			error: null,
+		};
+
+		var tableName = 'core_company';
+		// var tableDescriptor = new GlideTableDescriptor(tableName);
+		// java.lang.SecurityException: GlideTableDescriptor is not allowed in scoped applications
+
+		try{
+			var gr = new GlideRecord(tableName);
+			if(!gr){
+				allVendors.status = 'failed';
+				allVendors.error = 'No GlideRecord found';	
+				return JSON.stringify(allVendors); // Return a stringified JSON object		
+			}
+			// gr.addQuery('active', true);
+			gr.addQuery('vendor', true);
+			gr.orderBy('name'); // Order by the 'name' field alphabetically
+			gr.query();
+			var vendorData = {};
+			var aName = '';
+			var aSysId = '';
+			while (gr.next()) {
+				// Construct an object with name and sys_id for each row
+				try{
+					aName = gr.name.toString();
+					aSysId = gr.sys_id.toString();
+					vendorData = {
+						'name': aName, // Assuming there's a 'name' field in your table
+						'sys_id': aSysId // sys_id is a standard field
+					};
+				}
+				catch(siErr){
+					vendorData = {
+						'name': 'problem gr', // Assuming there's a 'name' field in your table
+						'sys_id': siErr.message // sys_id is a standard field
+					};
+				}
+				// Push the constructed object into appData
+				allVendors.appData.push(vendorData);
+			}
+
+			// Update status based on the result
+			if (allVendors.appData.length &gt; 0) {
+				allVendors.status = 'succeeded';
+			} else {
+				allVendors.status = 'failed';
+				allVendors.error = 'No active vendors found';
+			}
+		}
+		catch (outerSIerr){
+			allVendors.status = 'failed';
+			allVendors.error = 'caught: ' + outerSIerr.message;
+		}
+
+		return JSON.stringify(allVendors); // Return a stringified JSON object
+	},
+
+	getVendorData: function() {
+		var rowData = {};
+
+		try {
+			var sys_id = this.getParameter('sys_id');
+			var gr = new GlideRecord('core_company');
+			if(!gr){
+				rowData['error'] = 'gr not initialized for core_company';
+				return JSON.stringify(rowData);				
+			}
+			// rowData['Col aSysID'] = 'Col ' + sys_id + '&lt;br /&gt;&lt;br /&gt;';
+			var getRslt = gr.get(sys_id); // returns true or falase
+			if (getRslt) {
+				// Iterate over all fields in the record
+				for (var key in gr) {
+					// Check if the key is a valid field and not a system property
+					if (gr[key] instanceof GlideElement) {
+						var grValue = gr.getValue(key);
+						if(grValue === null || grValue === ''){
+							rowData[key] ='';
+						}
+						else if(grValue.contains('http')){
+							rowData[key] ='anySysId'; // url effectively means a value was not chosen from a reference table
+
+						}
+						else {
+							rowData[key] = gr.getValue(key); // Get the field's value
+						}
+					}
+				}
+				if(Object.keys(rowData).length &lt; 1){
+					return JSON.stringify({ error: 'rowData is empty for ' + sys_id });
+				}
+			} else {
+				rowData['error'] = 'SN SI getVendordata Record not found for ' + sys_id;
+			}
+		}
+		catch (error){
+			rowData['error'] = 'caught ' + error.message;
+		}
+		return JSON.stringify(rowData);
+	},
+	
+    getAllCommodityCodes: function() {
+		var allCommodityCodes = {
+			snTableName: 'commoditycodes',
+			appData:[], // Set appData to a serializable initial value (e.g., null)
+			status: 'idle', // | 'loading' | 'succeeded' | 'failed'
+			error: null,
+		};
+
+		var tableName = 'x_dosny_bit_procur_commodity';
+
+		try{
+			var step = 'first';
+			var gr = new GlideRecord(tableName);
+			gr.query('u_string_1','L1 4')
+			gr.orderBy('name'); // Order by the 'name' field alphabetically
+			gr.query();
+
+			step = 'second';
+			while (gr.next()) {
+				// Construct an object with name and sys_id for each row
+				step = 'second a';
+				var oneRow = {
+					name: gr.name.toString(), // Assuming there's a 'name' field in your table
+					code: gr.commodity_code.toString(),
+					sys_id: gr.sys_id.toString() // sys_id is a standard field
+				};
+				step = 'second b';
+
+				// Push the constructed object into appData
+				allCommodityCodes.appData.push(oneRow);
+
+				step = 'second c';
+
+
+			}
+			step = 'thrid';
+			// Update status based on the result
+			if (allCommodityCodes.appData.length &gt; 0) {
+				allCommodityCodes.status = 'succeeded';
+			} else {
+				allCommodityCodes.status = 'failed';
+				allCommodityCodes.error = 'No commodity codes found';
+			}
+			step = 'fourth';
+		}
+		catch (error){
+			allCommodityCodes.status = 'failed';
+			allCommodityCodes.error = 'at step ' + step + ', it caught: ' + error.message;
+		}
+
+		return JSON.stringify(allCommodityCodes); // Return a stringified JSON object
+	},
+
+	getCommodityCodeData: function() {
+		var rowData = {};
+
+		try {
+			var sys_id = this.getParameter('sys_id');
+			var gr = new GlideRecord('x_dosny_bit_procur_commodity');
+			if(!gr){
+				rowData['error'] = 'gr not initialized for x_dosny_bit_procur_commodity';
+				return JSON.stringify(rowData);				
+			}
+			// rowData['Col aSysID'] = 'Col ' + sys_id + '&lt;br /&gt;&lt;br /&gt;';
+			var getRslt = gr.get(sys_id); // returns true or falase
+			if (getRslt) {
+				// Iterate over all fields in the record
+				for (var key in gr) {
+					// Check if the key is a valid field and not a system property
+					if (gr[key] instanceof GlideElement) {
+						var grValue = gr.getValue(key);
+						if(grValue === null || grValue === ''){
+							rowData[key] ='';
+						}
+						else if(grValue.contains('http')){
+							rowData[key] ='anySysId'; // url effectively means a value was not chosen from a reference table
+
+						}
+						else {
+							rowData[key] = gr.getValue(key); // Get the field's value
+						}
+					}
+				}
+				if(Object.keys(rowData).length &lt; 1){
+					return JSON.stringify({ error: 'rowData is empty for ' + sys_id });
+				}
+			} else {
+				rowData['error'] = 'SN SI getCommodityCodeData Record not found for ' + sys_id;
+			}
+		}
+		catch (error){
+			rowData['error'] = 'caught ' + error.message;
+		}
+		return JSON.stringify(rowData);
+
+	},
+
+    getCredentials: function() {
+		/*
+			Retrieve User ID:
+			Use gs.getUserID() to get the current user's Sys ID.
+
+			Get User Record:
+			Fetch the user record from the sys_user table using the GlideRecord class.
+
+			Retrieve User Preferences:
+			Use gs.getUser().getPreference('user_credentials') to get the stored credentials from user preferences.
+
+			Encode Credentials:
+			Use GlideStringUtil.base64Encode(credentials) to encode the credentials in base64 format.
+
+			Return Encoded Credentials:
+			If credentials are found and encoded, return the encoded string.
+			Handle cases where credentials or user are not found.
+			By storing and retrieving the credentials in user preferences, you avoid using 
+			the restricted GlideEncrypter class and maintain secure handling of sensitive 
+			information within ServiceNow.
+		*/
+		try {
+			// Retrieve the current user's Sys ID
+			var userSysId = gs.getUserID();
+			var user = new GlideRecord('sys_user');
+			if (user.get(userSysId)) {
+				var userName = user.user_name;
+					
+				// Retrieve the API token from user preferences (or another field)
+				var apiToken = gs.getUser().getPreference('user_api_token'); // Change 'user_api_token' to the correct preference key
+				if (apiToken) {
+					// Combine user_name and API token
+					var combinedCredentials = userName + ':' + apiToken;
+					var encodedCredentials = GlideStringUtil.base64Encode(combinedCredentials);
+					return encodedCredentials;
+				} else {
+					throw new Error('API token not found for ' + userName);
+				}
+			} else {
+				throw new Error('User not found: ' + userSysId);
+			}
+		} catch (catError) {
+			return catError.message;
+		}
+	},
+
+    type: 'ReactPOappScriptInclude'
+});
+]]&gt;&lt;/script&gt;&lt;sys_class_name&gt;sys_script_include&lt;/sys_class_name&gt;&lt;sys_created_by&gt;sfarkas&lt;/sys_created_by&gt;&lt;sys_created_on&gt;2024-04-08 17:16:15&lt;/sys_created_on&gt;&lt;sys_id&gt;e9123bbf1bdd82106c1036ef034bcbd3&lt;/sys_id&gt;&lt;sys_mod_count&gt;172&lt;/sys_mod_count&gt;&lt;sys_name&gt;ReactPOappScriptInclude&lt;/sys_name&gt;&lt;sys_package display_value="DSpoReactApp" source="x_elsr_react_app"&gt;f2ba728813da041032813092e144b01f&lt;/sys_package&gt;&lt;sys_policy/&gt;&lt;sys_scope display_value="DSpoReactApp"&gt;f2ba728813da041032813092e144b01f&lt;/sys_scope&gt;&lt;sys_update_name&gt;sys_script_include_e9123bbf1bdd82106c1036ef034bcbd3&lt;/sys_update_name&gt;&lt;sys_updated_by&gt;sfarkas&lt;/sys_updated_by&gt;&lt;sys_updated_on&gt;2024-07-18 16:02:05&lt;/sys_updated_on&gt;&lt;/sys_script_include&gt;&lt;/record_update&gt;</payload>
+        <payload_hash>1588212467</payload_hash>
+        <record_name>ReactPOappScriptInclude</record_name>
+        <reverted_from/>
+        <source>8eeddb2f1bec0210baac766e034bcb81</source>
+        <source_table>sys_update_set</source_table>
+        <state>previous</state>
+        <sys_created_by>sfarkas</sys_created_by>
+        <sys_created_on>2024-07-18 16:02:05</sys_created_on>
+        <sys_id>462d27141b2f061076f215ff034bcbf8</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_recorded_at>190c6944aed0000001</sys_recorded_at>
+        <sys_updated_by>sfarkas</sys_updated_by>
+        <sys_updated_on>2024-07-18 16:02:05</sys_updated_on>
+        <type>Script Include</type>
+        <update_guid>8a2d2714892f0610e25866e23bae84f7</update_guid>
+        <update_guid_history>8a2d2714892f0610e25866e23bae84f7:1588212467,e21de354462f0610d1564913721787d2:1612766050,383853d8acab06108075f7721338e932:-507700063,b841db1455ab06107b3f12fd04cf8a3c:-2125985006,1ec4ffc001abc210a806071bf9623c8f:1740208489,40347704fdabc21053980a1e51938430:-1157456573,f3b377c09cabc210128454405695c12e:-1777200286,6343bbcc896bc210b6266993cbc2ca26:44850539,5251734065abc210b75418e717144397:-789317820,10317b003cabc210bb2a8384e3ebd9a1:-780994010,57c0fb4c1d6bc210a9f7fc30f33e710e:-50476317,d2481fc0412bc2107f515336a4639fdb:-1157456573,2b52134caae7c2100d6678eb7006881f:-117797690,73f0db487ee7c2100fab23d2dcb5e2f4:-1810041802,5e0887001ee7c210a791fe3b137c0c04:-893695999,2237cbcca6a7c21075da782590a68bf0:-396347378,86797e4c2067c21047b3b7ee0096ed7d:321857995,d187b24c5d67c2104589474b53382d63:1869813355,efa67ec82067c2107a5ecb3daf774c1e:1098090017,e4e072c0e767c210c93220a181969494:-15546332,52cca2cccf27c210044317a5904e3588:1148996146,92cbee0c8b27c2103de00c9692951aa4:1955828655,d24aea082d27c210ea190e621dada3c8:617854415,e91aa24c4e27c2101762ba6d0b68377c:-370256691,6dc8a608a727c210e286acd9203051ec:1850291207,48225200f3e3c2103f07432d6a2e86bb:1906254137,4fbe820cd8a3c210db7f444f7211be09:-1461088370,30704a486463c21041b3b53a0f661abb:946188958,51bfb908cc63c2109f49fe83ef7555e9:-703549162,78c1ceff75574e1096e5af93cb2338a8:1934617381,fd7d757bd5574e1089f43219dc9b6cea:425091266,7ffcf5fbb9574e105cef4019c62e05a3:1934617381,39dad13b37d34e101fec9778a6468476:-703549162,bd2291ff5d934e10f9837463be17e3c4:651958230,c6df89bb39934e101225314ad583aaae:-686533853,de7e49bbb2934e10a8c04605c9de439d:-1616906570,470dc97b81934e10fd71788d713e2d44:1480441798,4da74d3713934e1083a507e3d5ae1cb6:207492049,f2d041bf4a534e10f951dc85a3911e52:941187062,4c20493f17534e1064fced44f5035b03:-19325809,246d70bbe9534e10b48270a332fa103d:-1254613415,0558f8b367534e10f133de286206547f:714280651,c652347f75134e10dff89ef19ec50917:-1751371149,21fa9deff5930e10857cd902fde1f28c:1143964330,4588d56fb4930e103d498b68b42d8449:-318983033,79d7d5ab02930e102e078189cdb6c1ff:1521758931,5e07dd6b08930e10a661ded6efbc8ba1:861914537,e9459d2b77930e10bfafda2318454748:-351024251,09f2d9e756930e103397f9768f686fcc:-1713893135,d30b416fbc530e108fd5689e1fde8d9b:1019964964,d54a41af73530e106318b15dce8c66a8:683565427,e4054de783530e100a479caf670e8d7a:-1874677147,a1a485e71d530e109525689fd9b28f96:-386657385,fc3401a77b530e10a10c8414968151b2:286663187,27d341e7d7530e1047302a930403ec21:1552565023,a5b38da7f9530e100fc02ce4885ea799:1375717855,6ec2cd6726530e103cec2be66ec0cfc2:1418576031,406ca46f95dfca10c533b2e042bff9c4:518802386,466be86f3fdfca10e3ae74f04a877ce0:-97490217,3dfa602fc8dfca10b555cc77d86aa5bb:-1093259474,6e8aac2f3ddfca1008e92a206907087c:-856503707,ebb96c2b69dfca1094cf3ab420e6bd8d:-129294553,15c8e0ab65dfca10d5aeaa833c8783ce:-1898842434,4ae7a4abd2dfca105a7faa0245ecac27:1520939129,245e14230cdfca10fb90826bc91d49b5:642115336,eea6d4e3919fca10c22cbba4bcda0db9:-1167909796,c0b498e30c9fca10a4fc7d7111436bd2:989321744,f9939467f79fca10954e3346e57325f8:-2105290320,f9a094a3f09fca1007cf1bb28bed7ea1:1806116033,196a84ab9b5fca10bb0e034f181834fd:-524166458,79bebf5fcd1fca103fca96427aed1de8:1723248152,47f80c5e6bdb8610dee761dc3323d634:-1306948347,cdc0aa71d45746109b0750ec002e97e9:-782499245,b730e271ca574610fadca0baf3df5b6f:502521743,e13f96fd1d17461083b91638fc541796:1261425877,5fae9afdd71746103dad6e9836544669:939906687,5d3e92bd611746107b9b0390a3d5fd09:2080956214,ab0dde3dbe1746107b00410bc12461c4:-41006280,cd3cd27d1b17461005d77278ee0f0919:-1698759681,a72b967930174610973942861860bf35:-1673773822,21ca1af9f6174610a2f027526021cb25:-594302312,c84756f5b8174610efea6062f7e4b513:1648015880,c986d2b58b174610e6496792f090accf:-1975319728,9a95da7545174610b679cf10604e6308:411146648,46e49275ab174610f06fb0ff5822b295:-1252244200,43a416752b174610c224ae5552eb2cc0:-449389256,3e64d6f1db174610cb9206b025a3595e:-1244266068,c482dab16917461097b5f1e810ce9181:443361523,eab15e311517461048ba2027ae21b7cb:-669915428,32619e71b617461051ce03b087774cc5:-1778126779,0bc05e313d1746107086e744fd874dc4:-488663319,86309efd73d34610ecf8ba5421450c2d:1664093219,be9e46fd54d3461077b42a290aebbddc:-1260311972,4a0b8af954d3461098afff0230424b56:-847652071,39274ef1c8d34610cf4c3753b64c1ecc:919265447,c17602f55cd346103ba35438badbe271:1333688885,29b506b5c6d34610a5a421d423c89dd4:-578085179,a4c206715fd34610594c8dcb235d5dbf:2010965558,7bf14a31cdd3461038cac157c2b401db:-270480196,b9310671efd346105b49d666911f3cb6:-214168933,b7808afde9934610d811999e6d2d7911:-1903371459,7e4f79bd2c934610ce205750bafcc2c7:235946840,a0bd757d90934610fbf64666aab5ff5f:-293231968,919c3df9d3934610f13cd1b9cac386fc:-546940910,d6abbd79c49346105a66b4dd54223317:-992347511,b2eabdb98a9346107a18e390ec290f1a:-759768996,d8c8f9390b9346104ae5eb6963036f15:1261620512,7c81262dde170610b5a721fdc0559885:162877145,1dbd79e5b59306102cec687253263b4b:2026790299,3b668921f1dfc210151d5ca9857057ad:-1248932808,cea445ad659fc2107b688967de5e633b:87589310,2c92492dd09fc2103eb21555880548c4:1932220885,b57281e9b59fc21010907447f3555b02:1700321813,ce2205e94b9fc2107cc0a58982bc8dcc:1618096167,a71141e9299fc21016fd718aa08aa2f8:-573375060,6f8081e5b39fc21097bee42894fea3bd:1440926222,292fb029399fc21002576f2c487c06a8:-487255499,ecce7ca51d9fc2109d1dddc2c6d3cb8d:-1775849969,4fdc34a5809fc210f8000ac73ea4fda2:-1867024662,84795911e313c21084fcb84ba52b99bc:549770353,fea2941960db8210b1d90c91cbf9b1cc:-1675001505,fcf01c95cfdb821059f05a912a566591:678888301,be019998b9178250a9406d7770f5a348:-1835636425,8926aa6b20c3ce10ad232aeee84d7d58:-1582125298,d6eff1eff903ce1075c7a352cb6c0b41:717136136,18ce392fa903ce10c895a0c792f31bf1:1376729782,a80d31aba403ce101203ac855a5f673f:-1606723992,892a352bb603ce100c8dcadda2ed1e0e:-789168905,e3e32bfd0086c610a4eaa20ef15497d2:1436116603,3a216379a986c610134ea674768383fd:2091605955,cecaf2b1cb06c610167ab94ee5d9b636:1436116603,7af8327daac2c610ffee465f76af51dc:-233050137,7dbe40491606c210dd3d7df6f0a6a5df:624662425,29ccc885f706c210db67889e63a964c7:-224334938,65a608c976c2c210a84ae361b87d5763:1697214251,ecf4440d41c2c210911a7f77cdf3562b:-288882707,3f64480daec2c2105ca8a89d8b4e618d:-1766232792,92124449dac2c210cd1d036cf739c0bb:-930350665,d181444945c2c210ff23cfefa2351949:210270419,6a21484502c2c2102f5d2607bab6fda7:1463082462,fcf088096dc2c210fdfdc2f2a1793eae:75648964,331044c592c2c210e9f95c17331096dc:1342604323,cefef7b454c2c210607fdfc0ea662811:-2113211031,8bbd3374d1c2c210b78a4e629a8950bb:-772043860,a08ea44092820690474318ea44d9ae47:-2140204336,37dc6ccc43420690db37f20812b2e841:-1474477980,7a0a204ca9420690085d4f3fdcaea306:-764088968,b1b2e4c003420690fd9b164f0a9a06bb:597567176,a47064803f4206901e208a11c3bd5cfc:-1540177953,a0df18404b4206904d04a0bf9d6da8ad:1039417703,f04f544083420690d5ecf702e9067efe:1030223697,e7b81888eb020690f46876d1c7d39cce:-1995615571,dbf718881002069031660c313f2c34c7:-107262719,39d15c409d0206908415fc824a2b5053:-176443494,a26098c05c020690c2babce70c69861a:-287729687,b9fd44ccaecec2906ebbc37a1f47bc26:-2081500520,d01c048ccfcec2909d7e7c435960a486:2103715208,87e4448464cec290ab33232226143b15:-1427218753,cd63448452cec2906959fdc78adb60ec:676021080,29d0372b79fd829014e2f661dcb29a16:-647274975,c7a4e36facbd82903daf7205b4dd02d3:-2054211469,6167d76f907d8290b78265fd05f94c11:-1789721861,5d545f6ff77d8290c151cc3ccd40eaa8:733704903,0e71d76b287d8290e04600b748164285:-1183737214,316903e3dd7d829061a5229f5bccbe43:-1382419290,870f7693167d42901051fbc4818ab79f:-365711492,fb792c8437e1c2106f986203a5fd6e3c:-58095857,7f11d000d0a1c21048c2482065d43f3f:-365711492,d899c0082761c210287456aa113fd1ee:105285110,b7e4008c6361c2108bd9a3a8391761d6:953526951,11cbbbbb9911c210ddc0e1b7f1ede51a:-1611268934,f5faf33b7f11c21003f3bab846fab773:-89586956,0c9537b3f711c210684334f3d120be0a:439008719</update_guid_history>
+    </sys_update_version>
+    <sys_metadata_delete action="INSERT_OR_UPDATE">
+        <sys_audit_delete/>
+        <sys_class_name>sys_metadata_delete</sys_class_name>
+        <sys_created_by>sfarkas</sys_created_by>
+        <sys_created_on>2024-07-18 16:17:33</sys_created_on>
+        <sys_db_object display_value="" name="sys_script_include">sys_script_include</sys_db_object>
+        <sys_id>3cd9481fa84441008e310a56b61a4000</sys_id>
+        <sys_metadata>e9123bbf1bdd82106c1036ef034bcbd3</sys_metadata>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>ReactPOappScriptInclude</sys_name>
+        <sys_package display_value="DSpoReactApp" source="x_elsr_react_app">f2ba728813da041032813092e144b01f</sys_package>
+        <sys_parent/>
+        <sys_policy/>
+        <sys_scope display_value="DSpoReactApp">f2ba728813da041032813092e144b01f</sys_scope>
+        <sys_scope_delete display_value="">90c089db0cdc4fc29475984a9e86e2f1</sys_scope_delete>
+        <sys_update_name>sys_script_include_e9123bbf1bdd82106c1036ef034bcbd3</sys_update_name>
+        <sys_update_version display_value="sys_script_include_e9123bbf1bdd82106c1036ef034bcbd3">462d27141b2f061076f215ff034bcbf8</sys_update_version>
+        <sys_updated_by>sfarkas</sys_updated_by>
+        <sys_updated_on>2024-07-18 16:17:33</sys_updated_on>
+    </sys_metadata_delete>
+</record_update>

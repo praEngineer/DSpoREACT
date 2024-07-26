@@ -1,87 +1,236 @@
 <?xml version="1.0" encoding="UTF-8"?><record_update table="sys_ui_page">
     <sys_ui_page action="INSERT_OR_UPDATE">
         <category>general</category>
-        <client_script><![CDATA[        // Function to escape HTML entities
-        function escapeHtml(text) {
-            var map = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#039;'
-            };
-            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
-        }
+        <client_script><![CDATA[// Function to escape HTML entities
+function escapeHtml(text) {
+	var map = {
+		'&': '&amp;',
+		'<': '&lt;',
+		'>': '&gt;',
+		'"': '&quot;',
+		"'": '&#039;'
+	};
+	return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+}
 
-        function displayEscapedToken() {
+function displayEscapedToken() {
+	try {
+		// Assuming the token is retrieved from a cookie or some source
+		var token = getCookie('glide_session_store');
+		if (token) {
+			// Escape the token before displaying it
+			var escapedToken = escapeHtml(token);
+			document.getElementById('tokenBox').value = escapedToken;
+		} else {
+			throw new Error('Token not found');
+		}
+	}
+	catch (jsError) {
+		document.getElementById('tokenBox').value = jsError.message;
+	}
+}
+
+// Function to get a cookie by name
+function getCookie(name) {
+	var cookieArr = document.cookie.split(";");
+	for (var i = 0; i < cookieArr.length; i++) {
+		var cookiePair = cookieArr[i].split("=");
+		if (name === cookiePair[0].trim()) {
+			return decodeURIComponent(cookiePair[1]);
+		}
+	}
+	return null;
+}
+
+// Function to retrieve the glide_session_store cookie
+function retrieveGlideSessionStoreCookie() {
+	var iframe = document.createElement('iframe');
+	iframe.style.display = 'none';
+	iframe.src = 'https://nycdev1.service-now.com';
+	document.body.appendChild(iframe);
+
+	iframe.onload = function() {
+		try {
+			var glideSessionStoreCookie = getCookie('glide_session_store');
+			// console.log('glide_session_store cookie value:', glideSessionStoreCookie);
+			document.getElementById('tokenBox').value = glideSessionStoreCookie;
+			// Clean up by removing the iframe
+			document.body.removeChild(iframe);
+		} catch (e) {
+			// console.error('Error retrieving cookie:', e);
+			document.getElementById('tokenBox').value = e.message;
+		}
+	};
+}
+
+function putWithGlideAjax() {
+	try {
+		var data = {
+			table_name: 'x_dosny_bit_procur_bit_procurement_purchase_order',
+			sys_id: '919b83701bba461076f215ff034bcb1a', // Replace with a valid sys_id
+			payload: {
+				extended_description: 'brand new text',
+				// Include more fields as needed
+			}
+		};
+		var ga = new GlideAjax('ReactPOappScriptInclude');
+		ga.addParam('sysparm_name', 'sendPutRequest');
+		ga.addParam('sysparm_data', JSON.stringify(data)); // Convert data to JSON string
+		ga.getXML(function(response) {
+		try {
+			if (!response) {
+				document.getElementById('root').innerText = 'method failed to retrieve data from ' + data.table_name;
+			} else {
+				var parsedResponse = JSON.parse(response);
+				document.getElementById('root').innerText = JSON.stringify(parsedResponse, null, 2);
+			}
+		} catch (error) {
+			document.getElementById('root').innerText = 'Error parsing response: ' + error.message;
+		}
+		});
+	}
+	catch (error){
+		document.getElementById('result').innerText = error.message;
+	}
+
+}
+
+function getPOdataclient() {
+	try {
+		var ga = new GlideAjax('x_elsr_react_app.ReactPOappScriptInclude');
+		if(!ga){
+			throw new Error('ga not instantiated');
+		}
+		var method = 'getPOdata';
+		ga.addParam('sysparm_name', method);
+		// ga.addParam('sysparm_scope', 'x_elsr_react_app');
+		ga.addParam('sys_id', '919b83701bba461076f215ff034bcb1a'); // Replace with the actual sys_id
+      
+
+		ga.getXML(function(response) {
+		
 			try {
-				// Assuming the token is retrieved from a cookie or some source
-				var token = getCookie('glide_session_store');
-				if (token) {
-					// Escape the token before displaying it
-					var escapedToken = escapeHtml(token);
-					document.getElementById('tokenBox').value = escapedToken;
-				} else {
-					throw new Error('Token not found');
+				if (response) {
+					var xmlDoc = response.responseXML;
+					var answerNode = xmlDoc.getElementsByTagName("answer")[0];
+					if (answerNode) {
+						var poData = answerNode.textContent || answerNode.text;
+						document.getElementById('root').innerText = poData;
+					} else {
+						document.getElementById('root').innerText = 'No data found.';
+					}	
+					// document.getElementById('root').innerText = JSON.stringify(parsedResponse, null, 2);
+				} 
+				else {
+					document.getElementById('root').innerText = method + ' method failed to retrieve data';
 				}
+			} catch (error) {
+				document.getElementById('root').innerText = 'Error parsing response: ' + error.message;
 			}
-			catch (jsError) {
-				document.getElementById('tokenBox').value = jsError.message;
-			}
-        }
+		});
+	}
+	catch(er) {
+		document.getElementById('ROOT').innerText = 'before getXMLAnswer: ' + er.message;
+	}
 
-        // Function to get a cookie by name
-        function getCookie(name) {
-            var cookieArr = document.cookie.split(";");
-            for (var i = 0; i < cookieArr.length; i++) {
-                var cookiePair = cookieArr[i].split("=");
-                if (name === cookiePair[0].trim()) {
-                    return decodeURIComponent(cookiePair[1]);
-                }
-            }
-            return null;
-        }
+}
+function _handleResponse(response) {
+	// console.info('response is: ', response);
+	if(!response){
+		document.getElementById('scope-display').innerText = 'no response from getScope to _handleResponse ';
+		return;
+	}
+	var res = response;
+	try {
+		if (!res) {
+			throw new Error('No res');
+		}
+		// else {
+		// 	console.info('_handleResponse res is: ', res);
+		// }
+		var xmlDoc = res.responseXML;
+		if (!xmlDoc) {
+			throw new Error('No xmlDoc');
+		}
+		// else {
+		// 	// console.info('_handleResponse xmlDoc.domain is: ', xmlDoc.domain);
+		// }
+		var answerNode = xmlDoc.documentElement.getAttribute('answer');
+		if (answerNode) {
+			var xmlString2 = new XMLSerializer().serializeToString(xmlDoc);
+			var lclScope = answerNode; // .textContent || answerNode.text;
+			document.getElementById('scope-display').innerText = lclScope; // + ' | ' + xmlString2;
+		} else {
+			var xmlString = new XMLSerializer().serializeToString(xmlDoc);
+			document.getElementById('scope-display').innerText = 'No scope data found in: ' + xmlString;
+		}
+	} catch (funErr) {
+		document.getElementById('scope-display').innerText = funErr.message;
+	}
+}
 
-		// Function to retrieve the glide_session_store cookie
-		function retrieveGlideSessionStoreCookie() {
-			var iframe = document.createElement('iframe');
-			iframe.style.display = 'none';
-			iframe.src = 'https://nycdev1.service-now.com';
-			document.body.appendChild(iframe);
+// Ensure g_user is defined first, then define ga
+function startHere() {
+	//ensureSNContext(function() {
+		var userId = g_user.userID;
+		document.getElementById('user-id-display').innerText = 'Current User ID: ' + userId;
 
-			iframe.onload = function() {
-				try {
-					var glideSessionStoreCookie = getCookie('glide_session_store');
-					// console.log('glide_session_store cookie value:', glideSessionStoreCookie);
-					document.getElementById('tokenBox').value = glideSessionStoreCookie;
-					// Clean up by removing the iframe
-					document.body.removeChild(iframe);
-				} catch (e) {
-					// console.error('Error retrieving cookie:', e);
-					document.getElementById('tokenBox').value = e.message;
+		var gatst = new GlideAjax('ReactPOappScriptIncludePublic');
+		if(!gatst){
+			document.getElementById('canIconnect').innerText = 'no gatst object ';
+			return;
+		}
+		gatst.addParam('sysparm_name', 'canIconnect');
+		gatst.getXML(function (response) {
+			try{
+				if(!response){
+					document.getElementById('canIconnect').innerText = 'no response from canIconnect ';
+					return;
 				}
-			};
+				var answer = response.responseXML.documentElement.getAttribute('answer');
+				if(!answer) {
+					var xmlString = new XMLSerializer().serializeToString(response.responseXML);
+					document.getElementById('canIconnect').innerText = 'answer is empty: ' + xmlString;
+					console.log('canIconnect without answer is: ',response);
+				}
+				else {
+					var xmlString2 = new XMLSerializer().serializeToString(response.responseXML);
+					console.log('canIconnect response with answer is: ',response);
+					document.getElementById('canIconnect').innerText = answer; // + ' | ' + xmlString2;
+				}
+
+			}
+			catch(gatsterr){
+				document.getElementById('canIconnect').innerText = gatsterr.message;
+			}
+		});
+
+		try{
+			var ga = new GlideAjax('ReactPOappScriptIncludePublic');
+
+			if(!ga){
+				document.getElementById('scope-display').innerText = 'no ga';
+			}
+			else {
+				ga.addParam('sysparm_name', 'getScope');
+
+				ga.getXML(_handleResponse);
+			}
+		}
+		catch (err) {
+			document.getElementById('scope-display').innerText = 'getScope ga.getXML err: ' + err.message;
 		}
 
-		function getPOdataclient() {
-            var ga = new GlideAjax('ReactPOappScriptInclude');
-            ga.addParam('sysparm_name', 'getVendorData');
-            ga.addParam('sys_id', 'b2530d981b58911010c26391ec4bcb1a'); // Replace with the specific sys_id
-			ga.getXMLAnswer(function(response) {
-				try {
-					if (response) {
-						var parsedResponse = JSON.parse(response);
-						document.getElementById('result').innerText = JSON.stringify(parsedResponse, null, 2);
-					} else {
-						document.getElementById('result').innerText = 'method failed to retrieve data';
-					}
-				} catch (error) {
-					document.getElementById('result').innerText = 'Error parsing response: ' + error.message;
-				}
-			});
-        }
+		getPOdataclient();
 
-        window.onload = getPOdataclient();]]></client_script>
+		// var script = document.createElement('script');
+		// script.type = 'module';
+		// script.crossOrigin = 'use-credentials';  // Request is made with credentials 'anonymous';
+		// script.src = '/api/x_elsr_react_app/container/js/SNuserCursor-js';
+		// document.body.appendChild(script);
+	// }
+	//);
+}]]></client_script>
         <description>In ServiceNow, I have a script included named "ReactPOappScriptInclude".&#13;
 &#13;
 Within ReactPOappScriptInclude there is a method called "getCredentials", which has no input arguments.  &#13;
@@ -102,30 +251,47 @@ The on-load attribute of the body tag ensures fetchCredentials is called when th
 </description>
         <direct>false</direct>
         <endpoint>x_elsr_react_app_GreenFormScriptIncludeTest.do</endpoint>
-        <html><![CDATA[<g:ui_page xmlns:g="http://www.service-now.com/ui_page">
-<html>
+        <html><![CDATA[<html>
 <head>
     <title>Escape Text Example</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 </head>
 <body>
     <h1>Purchase Order Data</h1>
-    <pre id="result">Loading...</pre>
+	<pre id="user-id-display">Lookup in progress...</pre>
+	<pre id="scope-display">Loading scope...</pre>
+	<div id="canIconnect">Can I connect?</div>
+	<pre id="root">Loading...</pre>
+
+	<script type="text/javascript">
+		// Ensure that $j is defined for use with ServiceNow's jQuery
+		var $j = jQuery.noConflict();
+
+		// Ensure the document is ready before executing startHere()
+		$j(document).ready(function() {
+			if (typeof startHere === 'function') {
+				startHere();
+			} else {
+				document.getElementById('canIconnect').innerText ='getPOdataclient() cannot be found in the UI Page Client Script.';
+			}
+		});
+	</script>
 </body>
 </html>
-</g:ui_page>]]></html>
+]]></html>
         <name>GreenFormScriptIncludeTest</name>
         <processing_script/>
         <sys_class_name>sys_ui_page</sys_class_name>
         <sys_created_by>sfarkas</sys_created_by>
         <sys_created_on>2024-07-09 14:07:22</sys_created_on>
         <sys_id>2e8bb4651b9fc21061a9a718624bcb9e</sys_id>
-        <sys_mod_count>39</sys_mod_count>
+        <sys_mod_count>79</sys_mod_count>
         <sys_name>GreenFormScriptIncludeTest</sys_name>
         <sys_package display_value="DSpoReactApp" source="x_elsr_react_app">f2ba728813da041032813092e144b01f</sys_package>
         <sys_policy/>
         <sys_scope display_value="DSpoReactApp">f2ba728813da041032813092e144b01f</sys_scope>
         <sys_update_name>sys_ui_page_2e8bb4651b9fc21061a9a718624bcb9e</sys_update_name>
         <sys_updated_by>sfarkas</sys_updated_by>
-        <sys_updated_on>2024-07-11 12:55:45</sys_updated_on>
+        <sys_updated_on>2024-07-19 15:57:15</sys_updated_on>
     </sys_ui_page>
 </record_update>

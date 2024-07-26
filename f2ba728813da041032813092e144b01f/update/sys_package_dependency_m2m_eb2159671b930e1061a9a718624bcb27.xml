@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_package_dependency_m2m">
+    <sys_package_dependency_m2m action="INSERT_OR_UPDATE">
+        <dependency display_value="Service Management Basics" source="com.snc.service">1e7c8f3ddb631300f93cdb85ca9619cc</dependency>
+        <min_version>1.0.0</min_version>
+        <sys_created_by>sfarkas</sys_created_by>
+        <sys_created_on>2024-07-15 20:45:09</sys_created_on>
+        <sys_id>eb2159671b930e1061a9a718624bcb27</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_package display_value="DSpoReactApp" source="x_elsr_react_app">f2ba728813da041032813092e144b01f</sys_package>
+        <sys_updated_by>sfarkas</sys_updated_by>
+        <sys_updated_on>2024-07-15 20:45:09</sys_updated_on>
+    </sys_package_dependency_m2m>
+</record_update>

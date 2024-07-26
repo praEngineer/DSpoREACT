@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_ui_page">
+    <sys_ui_page action="INSERT_OR_UPDATE">
+        <category>cms</category>
+        <client_script><![CDATA[// console.info("Document is ready!");
+// startHere();
+
+function ensureSNContext(callback) {
+	if ((typeof g_user !== 'undefined') ) {
+		// console.info('g_user and ga are available, execute the callback');
+		callback();
+	} else {
+		// console.info('Retry after a short delay');
+		setTimeout(function() {
+			ensureSNContext(callback);
+		}, 100);
+	}
+}
+
+function _handleResponse(response) {
+	// console.info('response is: ', response);
+	if(!response){
+		document.getElementById('scope-display').innerText = 'no response from getScope to _handleResponse ';
+		return;
+	}
+	var res = response;
+	try {
+		if (!res) {
+			throw new Error('No res');
+		}
+		// else {
+		// 	console.info('_handleResponse res is: ', res);
+		// }
+		var xmlDoc = res.responseXML;
+		if (!xmlDoc) {
+			throw new Error('No xmlDoc');
+		}
+		// else {
+		// 	// console.info('_handleResponse xmlDoc.domain is: ', xmlDoc.domain);
+		// }
+		var answerNode = xmlDoc.documentElement.getAttribute('answer');
+		if (answerNode) {
+			var xmlString2 = new XMLSerializer().serializeToString(xmlDoc);
+			var lclScope = JSON.parse(answerNode); // answerNode; // .textContent || answerNode.text;
+			document.getElementById('scope-display').innerText = lclScope; // + ' | ' + xmlString2;
+		} else {
+			var xmlString = new XMLSerializer().serializeToString(xmlDoc);
+			document.getElementById('scope-display').innerText = 'No scope data found in: ' + xmlString;
+		}
+	} catch (funErr) {
+		document.getElementById('scope-display').innerText = funErr.message;
+	}
+}
+
+function _handleResponse2(response) {
+	// console.info('response is: ', response);
+	if(!response){
+		document.getElementById('root').innerText = 'no response from _handleResponse2 ';
+		return;
+	}
+	var res = response;
+	try {
+		if (!res) {
+			throw new Error('No res');
+		}
+		// else {
+		// 	console.info('_handleResponse res is: ', res);
+		// }
+		var xmlDoc = res.responseXML;
+		if (!xmlDoc) {
+			throw new Error('No xmlDoc');
+		}
+		// else {
+		// 	// console.info('_handleResponse xmlDoc.domain is: ', xmlDoc.domain);
+		// }
+		var answerNode = xmlDoc.documentElement.getAttribute('answer');
+		if (!answerNode) {
+			var xmlString3 = new XMLSerializer().serializeToString(xmlDoc);
+			document.getElementById('root').innerText = 'No answerNode found in: ' + xmlString3;
+		} else {
+			// var xmlString2 = new XMLSerializer().serializeToString(xmlDoc);
+			// var lclScope = 'lclScope is: ' + xmlString2; // .textContent || answerNode.text;
+			document.getElementById('root').innerText = answerNode; // lclScope; // + ' | ' + xmlString2;
+		}
+	} catch (funErr) {
+		document.getElementById('root').innerText = funErr.message;
+	}
+}
+
+// Ensure g_user is defined first, then define ga
+function startHere() {
+	ensureSNContext(function() {
+		// var userId = g_user.userID;
+		// document.getElementById('user-id-display').innerText = 'Current User ID: ' + userId;
+
+		// var gatst = new GlideAjax('ReactPOappScriptIncludePublic');
+		// if(!gatst){
+		// 	document.getElementById('canIconnect').innerText = 'no gatst object ';
+		// 	return;
+		// }
+		// gatst.addParam('sysparm_name', 'canIconnect');
+		// gatst.getXML(function (response) {
+		// 	try{
+		// 		if(!response){
+		// 			document.getElementById('canIconnect').innerText = 'no response from canIconnect ';
+		// 			return;
+		// 		}
+		// 		var answer = response.responseXML.documentElement.getAttribute('answer');
+		// 		if(!answer) {
+		// 			var xmlString = new XMLSerializer().serializeToString(response.responseXML);
+		// 			document.getElementById('canIconnect').innerText = 'answer is empty: ' + xmlString;
+		// 			console.log('canIconnect without answer is: ',response);
+		// 		}
+		// 		else {
+		// 			var xmlString2 = new XMLSerializer().serializeToString(response.responseXML);
+		// 			console.log('canIconnect response with answer is: ',response);
+		// 			document.getElementById('canIconnect').innerText = answer; // + ' | ' + xmlString2;
+		// 		}
+
+		// 	}
+		// 	catch(gatsterr){
+		// 		document.getElementById('canIconnect').innerText = gatsterr.message;
+		// 	}
+		// });
+
+		// try{
+		// 	var ga = new GlideAjax('ReactPOappScriptIncludePublic');
+
+		// 	if(!ga){
+		// 		document.getElementById('scope-display').innerText = 'no ga';
+		// 	}
+		// 	else {
+		// 		ga.addParam('sysparm_name', 'getScope');
+
+		// 		ga.getXML(_handleResponse);
+		// 	}
+		// }
+		// catch (err) {
+		// 	document.getElementById('scope-display').innerText = 'getScope ga.getXML err: ' + err.message;
+		// }
+
+
+		// try{
+		// 	ga = new GlideAjax('ReactPOappScriptIncludePublic');
+
+		// 	if(!ga){
+		// 		document.getElementById('root').innerText = 'no ga';
+		// 	}
+		// 	else {
+		// 		ga.addParam('sysparm_name', 'getPOdata');
+		// 		ga.addParam('sys_id', '3f31f0d61b9f861061a9a718624bcbc1');
+
+		// 		// ga.getXML(_handleResponse2);
+		// 	}
+		// }
+		// catch (err) {
+		// 	document.getElementById('root').innerText = 'getPOdata ga.getXML err: ' + err.message;
+		// }
+
+		var script = document.createElement('script');
+		script.type = 'module';
+		// script.crossOrigin = 'anonymous' ; //'use-credentials';  // Request is made with credentials //  
+		script.src = '/api/x_elsr_react_app/container/js/SNuserCursor-js';
+		document.body.appendChild(script);
+
+	});
+}
+
+]]></client_script>
+        <description>HTTP PUT and GET with current SN user ID and cursor return to last character in text box</description>
+        <direct>false</direct>
+        <endpoint>x_elsr_react_app_GreenFormSNuserCursor.do</endpoint>
+        <html><![CDATA[<?xml version="1.0" encoding="utf-8" ?>
+<j:jelly trim="false" xmlns:j="jelly:core" xmlns:g="glide" xmlns:j2="null" xmlns:g2="null">
+
+
+	<html lang="en">
+	<head>
+		<meta charset="UTF-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+		<title>DSpo with SN-REACT internal to SN</title>
+		<!-- <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>-->
+		<link rel="stylesheet" href="/api/x_elsr_react_app/container/js/index-BieVOJf7-css"></link> 
+	</head>
+	<body>
+		<!-- <pre id="user-id-display">Lookup in progress...</pre>
+		<pre id="scope-display">Loading scope...</pre>
+		<pre id="canIconnect">Can I connect?</pre>
+		<pre id="experiment">Experiment result</pre>
+		<br /><br /> -->
+		<div id="root">Loading...</div>
+
+        <script type="text/javascript">
+            // Ensure that $j is defined for use with ServiceNow's jQuery
+            var $j = jQuery.noConflict();
+
+            // Ensure the document is ready before executing startHere()
+            $j(document).ready(function() {
+                if (typeof startHere === 'function') {
+                    startHere();
+                } else {
+                    document.getElementById('canIconnect').innerText ='startHere() cannot be found in the UI Page Client Script.';
+                }
+            });
+        </script>
+	</body>
+	</html>
+	
+
+</j:jelly>]]></html>
+        <name>GreenFormSNuserCursor</name>
+        <processing_script/>
+        <sys_class_name>sys_ui_page</sys_class_name>
+        <sys_created_by>sfarkas</sys_created_by>
+        <sys_created_on>2024-07-16 16:11:23</sys_created_on>
+        <sys_id>b22b9d771bd34e1061a9a718624bcb8b</sys_id>
+        <sys_mod_count>186</sys_mod_count>
+        <sys_name>GreenFormSNuserCursor</sys_name>
+        <sys_package display_value="DSpoReactApp" source="x_elsr_react_app">f2ba728813da041032813092e144b01f</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="DSpoReactApp">f2ba728813da041032813092e144b01f</sys_scope>
+        <sys_update_name>sys_ui_page_b22b9d771bd34e1061a9a718624bcb8b</sys_update_name>
+        <sys_updated_by>sfarkas</sys_updated_by>
+        <sys_updated_on>2024-07-23 20:02:43</sys_updated_on>
+    </sys_ui_page>
+</record_update>
