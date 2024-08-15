@@ -678,32 +678,33 @@ ReactPOappScriptIncludePublic.prototype = Object.extendsObject(global.AbstractAj
 			error: null,
 		};
 
-		var tableName = 'x_dosny_bit_procur_commodity';
+		var tableName = 'x_dosny_bit_procur_bit_procurement_comm_codes'; // 'x_dosny_bit_procur_commodity';
 
 		try{
 			var step = 'first';
 			var gr = new GlideRecord(tableName);
-			gr.query('u_string_1','L1 4');
-			gr.orderBy('name'); // Order by the 'name' field alphabetically
+			//gr.query('u_string_1','L1 4');
+			gr.query('commodity_codeISNOTEMPTY');
+			gr.orderBy('commodity_code_desc'); // Order by the 'name' field alphabetically
 			gr.query();
 
 			step = 'second';
 			while (gr.next()) {
 				// Construct an object with name and sys_id for each row
-				step = 'second a';
-				var oneRow = {
-					name: gr.name.toString(), // Assuming there's a 'name' field in your table
-					code: gr.commodity_code.toString(),
-					sys_id: gr.sys_id.toString() // sys_id is a standard field
-				};
-				step = 'second b';
+				if(gr.commodity_code.toString() > ''){
+					step = 'second a';
+					var oneRow = {
+						commodity_code: gr.commodity_code.toString(), // Assuming there's a 'name' field in your table
+						commodity_code_desc: gr.commodity_code_desc.toString(),
+						sys_id: gr.sys_id.toString() // sys_id is a standard field
+					};
+					step = 'second b';
 
-				// Push the constructed object into appData
-				allCommodityCodes.appData.push(oneRow);
+					// Push the constructed object into appData
+					allCommodityCodes.appData.push(oneRow);
 
-				step = 'second c';
-
-
+					step = 'second c';
+				}
 			}
 			step = 'thrid';
 			// Update status based on the result
@@ -728,9 +729,9 @@ ReactPOappScriptIncludePublic.prototype = Object.extendsObject(global.AbstractAj
 	getCommodityCodeData: function() {
 		var rowData = {};
 
-		try {
+		try { // 'x_dosny_bit_procur_bit_procurement_comm_codes'; // 
 			var sys_id = this.getParameter('sys_id');
-			var gr = new GlideRecord('x_dosny_bit_procur_commodity');
+			var gr = new GlideRecord('x_dosny_bit_procur_bit_procurement_comm_codes'); //('x_dosny_bit_procur_commodity');
 			if(!gr){
 				rowData['error'] = 'gr not initialized for x_dosny_bit_procur_commodity';
 				return JSON.stringify(rowData);				
@@ -856,13 +857,13 @@ ReactPOappScriptIncludePublic.prototype = Object.extendsObject(global.AbstractAj
         <sys_created_by>sfarkas</sys_created_by>
         <sys_created_on>2024-07-18 16:09:02</sys_created_on>
         <sys_id>451e67141b2f061076f215ff034bcb0f</sys_id>
-        <sys_mod_count>55</sys_mod_count>
+        <sys_mod_count>62</sys_mod_count>
         <sys_name>ReactPOappScriptIncludePublic</sys_name>
         <sys_package display_value="DSpoReactApp" source="x_elsr_react_app">f2ba728813da041032813092e144b01f</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="DSpoReactApp">f2ba728813da041032813092e144b01f</sys_scope>
         <sys_update_name>sys_script_include_451e67141b2f061076f215ff034bcb0f</sys_update_name>
         <sys_updated_by>sfarkas</sys_updated_by>
-        <sys_updated_on>2024-07-26 15:45:08</sys_updated_on>
+        <sys_updated_on>2024-08-15 16:55:47</sys_updated_on>
     </sys_script_include>
 </record_update>
