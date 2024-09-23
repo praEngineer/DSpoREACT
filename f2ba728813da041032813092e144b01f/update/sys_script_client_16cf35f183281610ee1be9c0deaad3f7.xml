@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_script_client">
+    <sys_script_client action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <applies_extended>false</applies_extended>
+        <condition/>
+        <description>Use the HTML SELECT value of row01_po_type to control which radio button of po_type is  active/true</description>
+        <field>x_elsr_react_app_row01type</field>
+        <global>false</global>
+        <isolate_script>false</isolate_script>
+        <messages/>
+        <name>Translate row01_po_type to po_type</name>
+        <order/>
+        <script><![CDATA[function onChange(control, oldValue, newValue, isLoading, isTemplate) {
+   if (isLoading || newValue === '') {
+	alert('not ready yet');	
+    return;
+   }
+	alert('new value is: ' + newValue);
+	
+	try{
+	//Type appropriate comment here, and begin script below
+		var row01PoType = newValue; // g_form.getValue('row01_po_type');
+		
+		// Set the po_type field to the same value
+		g_form.setValue('po_type', row01PoType);
+	}
+	catch(err){
+		alert(err.message);
+	}
+
+   
+}
+
+// (function executeRule(current, previous /*null when async*/) {
+//     // Get the value of the row01_po_type field
+//     var row01PoType = g_form.getValue('row01_po_type');
+    
+//     // Set the po_type field to the same value
+//     g_form.setValue('po_type', row01PoType);
+// })(current, previous);
+]]></script>
+        <sys_class_name>sys_script_client</sys_class_name>
+        <sys_created_by>sfarkas</sys_created_by>
+        <sys_created_on>2024-09-10 17:04:10</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>16cf35f183281610ee1be9c0deaad3f7</sys_id>
+        <sys_mod_count>6</sys_mod_count>
+        <sys_name>Translate row01_po_type to po_type</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="DSpoReactApp" source="x_elsr_react_app">f2ba728813da041032813092e144b01f</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="DSpoReactApp">f2ba728813da041032813092e144b01f</sys_scope>
+        <sys_update_name>sys_script_client_16cf35f183281610ee1be9c0deaad3f7</sys_update_name>
+        <sys_updated_by>sfarkas</sys_updated_by>
+        <sys_updated_on>2024-09-10 17:35:40</sys_updated_on>
+        <table>x_dosny_bit_procur_bit_procurement_purchase_order</table>
+        <type>onChange</type>
+        <ui_type>0</ui_type>
+        <view/>
+    </sys_script_client>
+</record_update>

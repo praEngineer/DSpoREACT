@@ -51,6 +51,100 @@ ReactPOappScriptIncludePublic.prototype = Object.extendsObject(global.AbstractAj
         // Your code
     },
     */	
+	
+    fetchServiceNowTableData: function() {
+		var tableName = this.getParameter('tableName');
+		var whichTemplate = this.getParameter('whichTemplate');
+		var allCodes = {
+			snTableName: tableName,
+			appData:[
+				{
+					sys_id:'junk60e193e852109ce6bcd97bba10f1',
+					snTableName: tableName, // 'x_dosny_bit_procur_bit_procurement_purchase_order',
+					combo_label: 'choose one',
+					combo_value: 'choose one',
+					combo_element:'junkelement',
+					combo_chosen: false,
+				}
+			], // Set appData to a serializable initial value (e.g., null)
+			status: 'idle', // | 'loading' | 'succeeded' | 'failed'
+			error: null,
+		};
+
+		try{
+			var getColumns = [];
+			if (tableName === 'x_dosny_bit_procur_bit_procurement_budget_code') {
+				getColumns = ['budget_code', 'number', 'short_description', 'sys_id'];
+			} else if (tableName === 'x_dosny_bit_procur_bit_procurement_object_code') {
+				getColumns = ['object_code', 'number', 'object_code_desc', 'sys_id'];
+			} else if (tableName === 'sys_choice') {
+				getColumns = ['label', 'value', 'name', 'element', 'sys_id'];
+			}
+
+			var step = 'first';
+			var gr = new GlideRecord(tableName);
+			if(!gr){
+				throw new Error('gr not initialized for ' + tableName);
+			}
+			else {
+				// Limit the query to only get the fields specified in getColumns array
+				var bQueryExecuted = false;
+				for (var i = 0; i < getColumns.length; i++) {
+					if(tableName === 'sys_choice' && getColumns[i] === 'name'){
+						gr.addQuery('name', whichTemplate);
+						// var getRslt = gr.query();
+						// if(!getRslt){
+						// 	gs.info('getRslt is false after gr.query() for ' + tableName + ' and ' + !whichTemplate ? 'no whichTemplate param' : whichTemplate);
+						// 	throw new Error('getRslt is false after gr.query() for ' + tableName);
+						// }
+						// bQueryExecuted = true;
+						break;
+					}				
+				}
+				step = 'second';
+				if(!bQueryExecuted){
+					gr.query();
+				}
+				while (gr.next()) {
+					// Construct an object with name and sys_id for each row
+
+					step = 'second a';
+					var oneRow = {
+						combo_label: gr.getValue(getColumns[0]),  // First column becomes combo_label
+						combo_value: gr.getValue(getColumns[1]),  // First column becomes combo_value
+						combo_element:(tableName === 'sys_choice' ? gr.getValue(getColumns[3]) : ''),
+						combo_chosen: false,
+						sys_id: gr.sys_id.toString() // sys_id is a standard field
+					};
+					step = 'second b';
+
+					// Push the constructed object into appData
+					allCodes.appData.push(oneRow);
+
+					step = 'second c';
+
+				}
+				step = 'third';
+				gs.info('Update status based on the result');
+				if (allCodes.appData.length > 1) {
+					allCodes.status = 'succeeded';
+				} else {
+					allCodes.status = 'failed';
+					allCodes.error = 'No codes found';
+				}
+				step = 'fourth';
+			}
+		}
+		catch (error){
+			allCodes.status = 'failed';
+			allCodes.error = 'at step ' + step + ', it caught: ' + error.message;
+			var linkToLog = error.message;
+			gs.info('ERROR: fetchServiceNowTableData has this unknown error: ' + linkToLog);
+		}
+
+		return JSON.stringify(allCodes); // Return a stringified JSON object
+	},
+
 	canIconnect: function() {
 		/*
 		you may have noticed that we don't return any values from our function. We can if we 
@@ -359,16 +453,20 @@ ReactPOappScriptIncludePublic.prototype = Object.extendsObject(global.AbstractAj
                 for (var i = 0; i < keys.length; i++) {
                     var key = keys[i];
                     var value = data[key];
+					gs.warn("KEY " + key + " VALUE " + value + " + gr.isValidField(key) " + gr.isValidField(key))
                     if (gr.isValidField(key)) {
 						if(value !== gr.getValue(key) && !key.startsWith('sys_') && key !== 'number' ) {
 							step = 'update ' + key + ' from ' + gr.getValue(key) + ' to ' + value;
+							gs.warn('KEY update ' + key + ' from ' + gr.getValue(key) + ' to ' + value)
 							gr.setValue(key, value);
 						}
 						else {
 							step = 'no need to update ' + key + ' from ' + gr.getValue(key) + ' to ' + value;
+							gs.warn('KEY no need to update ' + key + ' from ' + gr.getValue(key) + ' to ' + value)
 						}
                     }
                 }
+
                 step = 'before update';
                 gr.update();
 
@@ -857,13 +955,13 @@ ReactPOappScriptIncludePublic.prototype = Object.extendsObject(global.AbstractAj
         <sys_created_by>sfarkas</sys_created_by>
         <sys_created_on>2024-07-18 16:09:02</sys_created_on>
         <sys_id>451e67141b2f061076f215ff034bcb0f</sys_id>
-        <sys_mod_count>62</sys_mod_count>
+        <sys_mod_count>82</sys_mod_count>
         <sys_name>ReactPOappScriptIncludePublic</sys_name>
         <sys_package display_value="DSpoReactApp" source="x_elsr_react_app">f2ba728813da041032813092e144b01f</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="DSpoReactApp">f2ba728813da041032813092e144b01f</sys_scope>
         <sys_update_name>sys_script_include_451e67141b2f061076f215ff034bcb0f</sys_update_name>
         <sys_updated_by>sfarkas</sys_updated_by>
-        <sys_updated_on>2024-08-15 16:55:47</sys_updated_on>
+        <sys_updated_on>2024-09-20 15:54:55</sys_updated_on>
     </sys_script_include>
 </record_update>

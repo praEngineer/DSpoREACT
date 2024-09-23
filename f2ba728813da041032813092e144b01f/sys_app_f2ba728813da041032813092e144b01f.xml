@@ -16,6 +16,7 @@
         <logo>f87b4b041be7c21076f215ff034bcb51</logo>
         <menu/>
         <name>DSpoReactApp</name>
+        <package_json/>
         <private>false</private>
         <restrict_table_access>false</restrict_table_access>
         <runtime_access_tracking/>

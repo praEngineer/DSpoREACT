@@ -18,6 +18,7 @@
         <override_menu_roles>false</override_menu_roles>
         <query>sys_ui_page.do?sys_id=fb0cb60c13da041032813092e144b0a5</query>
         <report/>
+        <require_confirmation>true</require_confirmation>
         <roles/>
         <sys_class_name>sys_app_module</sys_class_name>
         <sys_created_by>andrew.pishchulin</sys_created_by>
