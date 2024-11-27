@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_script_client">
     <sys_script_client action="INSERT_OR_UPDATE">
-        <active>true</active>
+        <active>false</active>
         <applies_extended>false</applies_extended>
         <condition/>
         <description>Use the HTML SELECT value of row01_po_type to control which radio button of po_type is  active/true</description>
@@ -45,7 +45,7 @@
         <sys_domain>global</sys_domain>
         <sys_domain_path>/</sys_domain_path>
         <sys_id>16cf35f183281610ee1be9c0deaad3f7</sys_id>
-        <sys_mod_count>6</sys_mod_count>
+        <sys_mod_count>7</sys_mod_count>
         <sys_name>Translate row01_po_type to po_type</sys_name>
         <sys_overrides/>
         <sys_package display_value="DSpoReactApp" source="x_elsr_react_app">f2ba728813da041032813092e144b01f</sys_package>
@@ -53,7 +53,7 @@
         <sys_scope display_value="DSpoReactApp">f2ba728813da041032813092e144b01f</sys_scope>
         <sys_update_name>sys_script_client_16cf35f183281610ee1be9c0deaad3f7</sys_update_name>
         <sys_updated_by>sfarkas</sys_updated_by>
-        <sys_updated_on>2024-09-10 17:35:40</sys_updated_on>
+        <sys_updated_on>2024-10-02 20:14:05</sys_updated_on>
         <table>x_dosny_bit_procur_bit_procurement_purchase_order</table>
         <type>onChange</type>
         <ui_type>0</ui_type>

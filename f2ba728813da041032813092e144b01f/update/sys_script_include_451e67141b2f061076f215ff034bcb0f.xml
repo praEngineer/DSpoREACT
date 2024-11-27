@@ -29,7 +29,9 @@ You need to grant your scoped application access to the sys_user_token (Global) 
 Part of the benefit of scoped applications is they can allow or deny access from other tables. This allows them to keep 'private tables' for their application data or allow sharing of the information. This has nothing to do with the user's security, it is application-to-application security. If you go to the tables you are trying to write, you'll see an Application Access tab that defines the cross application access.&#13;
 &#13;
 Caller Tracking: While this does not directly impact the ability of the UI Page to call the Script Include, it's important to be aware that calls will be logged. This could be relevant for performance considerations and auditing purposes.</description>
+        <mobile_callable>false</mobile_callable>
         <name>ReactPOappScriptIncludePublic</name>
+        <sandbox_callable>true</sandbox_callable>
         <script><![CDATA[var CurrentScopeScriptInclude = Class.create();
 CurrentScopeScriptInclude.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
     getCurrentScope: function() {
@@ -52,97 +54,111 @@ ReactPOappScriptIncludePublic.prototype = Object.extendsObject(global.AbstractAj
     },
     */	
 	
-    fetchServiceNowTableData: function() {
+	fetchServiceNowTableData: function() {
 		var tableName = this.getParameter('tableName');
 		var whichTemplate = this.getParameter('whichTemplate');
+		gs.info('fetchServiceNowTableData tableName is ' + tableName + ' and whichTemplate is ' + whichTemplate);
+
 		var allCodes = {
 			snTableName: tableName,
-			appData:[
+			appData: [
 				{
 					sys_id:'junk60e193e852109ce6bcd97bba10f1',
-					snTableName: tableName, // 'x_dosny_bit_procur_bit_procurement_purchase_order',
+					snTableName: tableName,
 					combo_label: 'choose one',
 					combo_value: 'choose one',
-					combo_element:'junkelement',
+					combo_element: 'junkelement',
 					combo_chosen: false,
 				}
-			], // Set appData to a serializable initial value (e.g., null)
-			status: 'idle', // | 'loading' | 'succeeded' | 'failed'
+			],
+			status: 'idle',
 			error: null,
 		};
 
-		try{
+		try {
 			var getColumns = [];
+
+			// Ensure tableName matches one of the predefined values
 			if (tableName === 'x_dosny_bit_procur_bit_procurement_budget_code') {
 				getColumns = ['budget_code', 'number', 'short_description', 'sys_id'];
 			} else if (tableName === 'x_dosny_bit_procur_bit_procurement_object_code') {
 				getColumns = ['object_code', 'number', 'object_code_desc', 'sys_id'];
 			} else if (tableName === 'sys_choice') {
 				getColumns = ['label', 'value', 'name', 'element', 'sys_id'];
+			} else {
+				gs.info('fetchServiceNowTableData: Table name not recognized: ' + tableName);
+				throw new Error('Table name not recognized: ' + tableName);
 			}
 
+			gs.info('fetchServiceNowTableData getColumns is ' + getColumns.toString());
 			var step = 'first';
+
+			// Initialize GlideRecord for the table
 			var gr = new GlideRecord(tableName);
-			if(!gr){
-				throw new Error('gr not initialized for ' + tableName);
+			if (!gr.isValid()) {
+				gs.info('Invalid GlideRecord for table ' + tableName);
+				throw new Error('Invalid GlideRecord for table ' + tableName);
 			}
-			else {
-				// Limit the query to only get the fields specified in getColumns array
-				var bQueryExecuted = false;
-				for (var i = 0; i < getColumns.length; i++) {
-					if(tableName === 'sys_choice' && getColumns[i] === 'name'){
-						gr.addQuery('name', whichTemplate);
-						// var getRslt = gr.query();
-						// if(!getRslt){
-						// 	gs.info('getRslt is false after gr.query() for ' + tableName + ' and ' + !whichTemplate ? 'no whichTemplate param' : whichTemplate);
-						// 	throw new Error('getRslt is false after gr.query() for ' + tableName);
-						// }
-						// bQueryExecuted = true;
-						break;
-					}				
+
+			var bExecuteQuery = false;
+
+			// Add query based on tableName and getColumns
+			for (var i = 0; i < getColumns.length; i++) {
+				if (tableName === 'sys_choice' && getColumns[i] === 'name') {
+					gr.addQuery('name', whichTemplate);
+					gs.info('fetchServiceNowTableData: Added a query where name = ' + whichTemplate);
+					break;
 				}
-				step = 'second';
-				if(!bQueryExecuted){
+			}
+
+			// Execute query only if columns are specified
+			if (getColumns.length > 0) {
+				bExecuteQuery = true;
+			} else {
+				gs.info('No columns defined for the table, skipping query execution.');
+				throw new Error('No columns defined for the table: ' + tableName);
+			}
+
+			step = 'second';
+
+			if (bExecuteQuery === true) {
+				try {
 					gr.query();
+					gs.info('fetchServiceNowTableData executed a GlideRecord query for table: ' + tableName);
+
+					while (gr.next()) {
+						var oneRow = {
+							combo_label: gr.getValue(getColumns[0]),
+							combo_value: gr.getValue(getColumns[1]),
+							combo_element: (tableName === 'sys_choice' ? gr.getValue(getColumns[3]) : ''),
+							combo_chosen: false,
+							sys_id: gr.sys_id.toString()
+						};
+
+						allCodes.appData.push(oneRow);
+					}
+				} catch (err) {
+					gs.info('fetchServiceNowTableData query of ' + tableName + ' caused: ' + err.message);
 				}
-				while (gr.next()) {
-					// Construct an object with name and sys_id for each row
-
-					step = 'second a';
-					var oneRow = {
-						combo_label: gr.getValue(getColumns[0]),  // First column becomes combo_label
-						combo_value: gr.getValue(getColumns[1]),  // First column becomes combo_value
-						combo_element:(tableName === 'sys_choice' ? gr.getValue(getColumns[3]) : ''),
-						combo_chosen: false,
-						sys_id: gr.sys_id.toString() // sys_id is a standard field
-					};
-					step = 'second b';
-
-					// Push the constructed object into appData
-					allCodes.appData.push(oneRow);
-
-					step = 'second c';
-
-				}
-				step = 'third';
-				gs.info('Update status based on the result');
-				if (allCodes.appData.length > 1) {
-					allCodes.status = 'succeeded';
-				} else {
-					allCodes.status = 'failed';
-					allCodes.error = 'No codes found';
-				}
-				step = 'fourth';
 			}
-		}
-		catch (error){
+
+			step = 'third';
+			gs.info('Update status based on the result');
+			if (allCodes.appData.length > 1) {
+				allCodes.status = 'succeeded';
+			} else {
+				allCodes.status = 'failed';
+				allCodes.error = 'No codes found';
+			}
+
+			step = 'fourth';
+		} catch (error) {
 			allCodes.status = 'failed';
 			allCodes.error = 'at step ' + step + ', it caught: ' + error.message;
-			var linkToLog = error.message;
-			gs.info('ERROR: fetchServiceNowTableData has this unknown error: ' + linkToLog);
+			gs.info('fetchServiceNowTableData resulted in: ' + error.message);
 		}
 
-		return JSON.stringify(allCodes); // Return a stringified JSON object
+		return JSON.stringify(allCodes);
 	},
 
 	canIconnect: function() {
@@ -955,13 +971,24 @@ ReactPOappScriptIncludePublic.prototype = Object.extendsObject(global.AbstractAj
         <sys_created_by>sfarkas</sys_created_by>
         <sys_created_on>2024-07-18 16:09:02</sys_created_on>
         <sys_id>451e67141b2f061076f215ff034bcb0f</sys_id>
-        <sys_mod_count>82</sys_mod_count>
+        <sys_mod_count>92</sys_mod_count>
         <sys_name>ReactPOappScriptIncludePublic</sys_name>
         <sys_package display_value="DSpoReactApp" source="x_elsr_react_app">f2ba728813da041032813092e144b01f</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="DSpoReactApp">f2ba728813da041032813092e144b01f</sys_scope>
         <sys_update_name>sys_script_include_451e67141b2f061076f215ff034bcb0f</sys_update_name>
         <sys_updated_by>sfarkas</sys_updated_by>
-        <sys_updated_on>2024-09-20 15:54:55</sys_updated_on>
+        <sys_updated_on>2024-10-03 16:08:27</sys_updated_on>
     </sys_script_include>
+    <sys_es_latest_script action="INSERT_OR_UPDATE">
+        <id>451e67141b2f061076f215ff034bcb0f</id>
+        <sys_created_by>sfarkas</sys_created_by>
+        <sys_created_on>2024-10-03 15:18:15</sys_created_on>
+        <sys_id>0385489933cd5a1042877cbb9d5c7b0e</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>sfarkas</sys_updated_by>
+        <sys_updated_on>2024-10-03 15:18:15</sys_updated_on>
+        <table>sys_script_include</table>
+        <use_es_latest>false</use_es_latest>
+    </sys_es_latest_script>
 </record_update>

@@ -177,7 +177,7 @@ function startHere() {
 	<head>
 		<meta charset="UTF-8"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-		<title>DSpo with SN-REACT internal to SN</title>
+		<title>BIT Purchase Order</title>
 		<!-- <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>-->
 		<link rel="stylesheet" href="/api/x_elsr_react_app/container/js/index-BieVOJf7-css"></link> 
 	</head>
@@ -187,6 +187,7 @@ function startHere() {
 		<pre id="canIconnect">Can I connect?</pre>
 		<pre id="experiment">Experiment result</pre>
 		<br /><br /> -->
+		<button id="close-button" style="margin-top: 20px;">Close</button>
 		<div id="root">Loading...</div>
 
         <script type="text/javascript">
@@ -201,6 +202,38 @@ function startHere() {
                     document.getElementById('canIconnect').innerText ='startHere() cannot be found in the UI Page Client Script.';
                 }
             });
+
+			           // Function to close the window quietly
+            function closeWindowQuietly() {
+                // Remove any existing beforeunload events
+                window.onbeforeunload = null;
+
+                // Attempt to close the window
+                window.open('', '_self', ''); // Needed for some browsers
+                window.close();
+			    // window.location.href = '/navpage.do'; // Redirect to the ServiceNow homepage
+
+            }
+
+            // Attach the close function to the button click event
+            $j(document).ready(function() {
+                $j('#close-button').on('click', function() {
+                    closeWindowQuietly();
+                });
+
+                // Check if startHere function is available and execute it
+                if (typeof startHere === 'function') {
+                    startHere();
+                } else {
+                    document.getElementById('canIconnect').innerText = 'startHere() cannot be found in the UI Page Client Script.';
+                }
+            });
+
+	        // Override the beforeunload event to prevent the warning
+           	window.onbeforeunload = function(event) {
+                event.preventDefault(); // Modern browsers will ignore this
+                return ''; // This will prevent the dialog from showing
+            };
         </script>
 	</body>
 	</html>
@@ -213,13 +246,13 @@ function startHere() {
         <sys_created_by>sfarkas</sys_created_by>
         <sys_created_on>2024-07-16 16:11:23</sys_created_on>
         <sys_id>b22b9d771bd34e1061a9a718624bcb8b</sys_id>
-        <sys_mod_count>186</sys_mod_count>
+        <sys_mod_count>195</sys_mod_count>
         <sys_name>GreenFormSNuserCursor</sys_name>
         <sys_package display_value="DSpoReactApp" source="x_elsr_react_app">f2ba728813da041032813092e144b01f</sys_package>
         <sys_policy/>
         <sys_scope display_value="DSpoReactApp">f2ba728813da041032813092e144b01f</sys_scope>
         <sys_update_name>sys_ui_page_b22b9d771bd34e1061a9a718624bcb8b</sys_update_name>
         <sys_updated_by>sfarkas</sys_updated_by>
-        <sys_updated_on>2024-07-23 20:02:43</sys_updated_on>
+        <sys_updated_on>2024-09-26 17:04:18</sys_updated_on>
     </sys_ui_page>
 </record_update>

@@ -48,4 +48,15 @@
         <web_service_definition display_value="React App Container">74daba8813da041032813092e144b0e1</web_service_definition>
         <web_service_version/>
     </sys_ws_operation>
+    <sys_es_latest_script action="INSERT_OR_UPDATE">
+        <id>b7fa32c813da041032813092e144b0f5</id>
+        <sys_created_by>sfarkas</sys_created_by>
+        <sys_created_on>2024-09-30 13:45:48</sys_created_on>
+        <sys_id>6393905c33c5561042877cbb9d5c7b1c</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>sfarkas</sys_updated_by>
+        <sys_updated_on>2024-09-30 13:45:48</sys_updated_on>
+        <table>sys_ws_operation</table>
+        <use_es_latest>false</use_es_latest>
+    </sys_es_latest_script>
 </record_update>

@@ -1,14 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?><record_update table="sys_cors_rule">
     <sys_cors_rule action="INSERT_OR_UPDATE">
+        <access_control_allow_credentials>true</access_control_allow_credentials>
+        <access_control_allow_headers>*</access_control_allow_headers>
+        <active>true</active>
         <delete>false</delete>
         <domain>https://localhost:5173</domain>
         <exposed_headers>Origin, X-Requested With, Content-Type,Authorization,Access-Control-Allow-Origin,X-Content-Type-Options:no-sniff</exposed_headers>
+        <for_embeddables>false</for_embeddables>
         <get>true</get>
         <max_age>0</max_age>
         <name>SEF localhost</name>
         <patch>false</patch>
         <post>true</post>
         <put>true</put>
+        <resource_path/>
         <rest_api>now/table</rest_api>
         <sys_class_name>sys_cors_rule</sys_class_name>
         <sys_created_by>sfarkas</sys_created_by>
@@ -22,5 +27,6 @@
         <sys_update_name>sys_cors_rule_1804da5b1bb942906c1036ef034bcbcd</sys_update_name>
         <sys_updated_by>sfarkas</sys_updated_by>
         <sys_updated_on>2024-05-01 17:25:57</sys_updated_on>
+        <use_resource_path>false</use_resource_path>
     </sys_cors_rule>
 </record_update>
