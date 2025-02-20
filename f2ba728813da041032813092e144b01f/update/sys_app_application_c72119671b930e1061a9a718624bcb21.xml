@@ -7,7 +7,7 @@
         <hint/>
         <name>UserID</name>
         <order>100</order>
-        <roles/>
+        <roles>snc_internal</roles>
         <sys_class_name>sys_app_application</sys_class_name>
         <sys_created_by>sfarkas</sys_created_by>
         <sys_created_on>2024-07-15 20:45:07</sys_created_on>

@@ -34,7 +34,7 @@
         <script><![CDATA[function reactPOapp_open() {
 	try{
 		var baseURL = ''; // "https://nycdsdev1.service-now.com";
-		var uiPage = "x_elsr_react_app_GreenFormSNuserCursor.do" // "x_elsr_react_app_GreenFormSNuser.do" // "/x_elsr_react_app_GreenFormConstUser.do"; // 
+		var uiPage = "x_elsr_react_app_GreenFormSNuserCursor.do"; // "x_elsr_react_app_GreenFormSNuser.do" // "/x_elsr_react_app_GreenFormConstUser.do"; // 
 		var sysID = g_form.getUniqueValue(); // This retrieves the sys_id of the current record on the form.
 		
 		// Construct the URL with sys_id if needed. Adjust according to your URL structure.
@@ -64,7 +64,7 @@
         <sys_domain>global</sys_domain>
         <sys_domain_path>/</sys_domain_path>
         <sys_id>1d111bf71b5d82106c1036ef034bcb3f</sys_id>
-        <sys_mod_count>35</sys_mod_count>
+        <sys_mod_count>36</sys_mod_count>
         <sys_name>Green Form</sys_name>
         <sys_overrides/>
         <sys_package display_value="DSpoReactApp" source="x_elsr_react_app">f2ba728813da041032813092e144b01f</sys_package>
@@ -72,9 +72,20 @@
         <sys_scope display_value="DSpoReactApp">f2ba728813da041032813092e144b01f</sys_scope>
         <sys_update_name>sys_ui_action_1d111bf71b5d82106c1036ef034bcb3f</sys_update_name>
         <sys_updated_by>sfarkas</sys_updated_by>
-        <sys_updated_on>2024-07-26 17:21:10</sys_updated_on>
+        <sys_updated_on>2025-02-19 21:18:17</sys_updated_on>
         <table>x_dosny_bit_procur_bit_procurement_purchase_order</table>
         <ui11_compatible>true</ui11_compatible>
         <ui16_compatible>false</ui16_compatible>
     </sys_ui_action>
+    <sys_es_latest_script action="INSERT_OR_UPDATE">
+        <id>1d111bf71b5d82106c1036ef034bcb3f</id>
+        <sys_created_by>sfarkas</sys_created_by>
+        <sys_created_on>2025-02-19 21:18:17</sys_created_on>
+        <sys_id>08fccdc2337f121042877cbb9d5c7b5a</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>sfarkas</sys_updated_by>
+        <sys_updated_on>2025-02-19 21:18:17</sys_updated_on>
+        <table>sys_ui_action</table>
+        <use_es_latest>false</use_es_latest>
+    </sys_es_latest_script>
 </record_update>

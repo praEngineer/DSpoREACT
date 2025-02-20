@@ -791,8 +791,9 @@ ReactPOappScriptIncludePublic.prototype = Object.extendsObject(global.AbstractAj
 			status: 'idle', // | 'loading' | 'succeeded' | 'failed'
 			error: null,
 		};
-
-		var tableName = 'x_dosny_bit_procur_bit_procurement_comm_codes'; // 'x_dosny_bit_procur_commodity';
+		var tableName = this.getParameter('tableName');
+        
+		// var tableName = 'x_dosny_bit_procur_bit_procurement_commodity_codes'; // 'x_dosny_bit_procur_commodity';
 
 		try{
 			var step = 'first';
@@ -831,10 +832,16 @@ ReactPOappScriptIncludePublic.prototype = Object.extendsObject(global.AbstractAj
 			step = 'fourth';
 		}
 		catch (error){
-			allCommodityCodes.status = 'failed';
-			allCommodityCodes.error = 'at step ' + step + ', it caught: ' + error.message;
-			var linkToLog = logWithLink('problem getAllCommodityCodes: ' + error, 'error');
-			gs.addErrorMessage('ERROR: Unknown error. Error log located <a href="' + linkToLog + '">here</a>.');
+			// allCommodityCodes.status = 'failed';
+			// allCommodityCodes.error = 'at step ' + step + ', it caught: ' + error.message;
+			// var linkToLog = logWithLink('problem getAllCommodityCodes: ' + error, 'error');
+			// gs.addErrorMessage('ERROR: Unknown error. Error log located <a href="' + linkToLog + '">here</a>.');
+			
+			// Log the real error internally
+			gs.error('ReactPOappScriptIncludePublic getAllCommodityCodes error: ' + error);
+
+			// Rethrow a plain string so we don't trigger Rhino's getMessage() security block
+			allCommodityCodes.error = 'ReactPOappScriptIncludePublic getAllCommodityCodes: ' + error;
 		}
 
 		return JSON.stringify(allCommodityCodes); // Return a stringified JSON object
@@ -971,14 +978,14 @@ ReactPOappScriptIncludePublic.prototype = Object.extendsObject(global.AbstractAj
         <sys_created_by>sfarkas</sys_created_by>
         <sys_created_on>2024-07-18 16:09:02</sys_created_on>
         <sys_id>451e67141b2f061076f215ff034bcb0f</sys_id>
-        <sys_mod_count>92</sys_mod_count>
+        <sys_mod_count>97</sys_mod_count>
         <sys_name>ReactPOappScriptIncludePublic</sys_name>
         <sys_package display_value="DSpoReactApp" source="x_elsr_react_app">f2ba728813da041032813092e144b01f</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="DSpoReactApp">f2ba728813da041032813092e144b01f</sys_scope>
         <sys_update_name>sys_script_include_451e67141b2f061076f215ff034bcb0f</sys_update_name>
         <sys_updated_by>sfarkas</sys_updated_by>
-        <sys_updated_on>2024-10-03 16:08:27</sys_updated_on>
+        <sys_updated_on>2025-02-20 00:52:14</sys_updated_on>
     </sys_script_include>
     <sys_es_latest_script action="INSERT_OR_UPDATE">
         <id>451e67141b2f061076f215ff034bcb0f</id>

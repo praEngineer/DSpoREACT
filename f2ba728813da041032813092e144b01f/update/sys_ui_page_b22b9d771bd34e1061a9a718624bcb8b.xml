@@ -179,7 +179,7 @@ function startHere() {
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 		<title>BIT Purchase Order</title>
 		<!-- <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>-->
-		<link rel="stylesheet" href="/api/x_elsr_react_app/container/js/index-BieVOJf7-css"></link> 
+		<link rel="stylesheet" href="/api/x_elsr_react_app/container/js/index-Djldl2OY-css"></link> 
 	</head>
 	<body>
 		<!-- <pre id="user-id-display">Lookup in progress...</pre>
@@ -246,13 +246,24 @@ function startHere() {
         <sys_created_by>sfarkas</sys_created_by>
         <sys_created_on>2024-07-16 16:11:23</sys_created_on>
         <sys_id>b22b9d771bd34e1061a9a718624bcb8b</sys_id>
-        <sys_mod_count>195</sys_mod_count>
+        <sys_mod_count>196</sys_mod_count>
         <sys_name>GreenFormSNuserCursor</sys_name>
         <sys_package display_value="DSpoReactApp" source="x_elsr_react_app">f2ba728813da041032813092e144b01f</sys_package>
         <sys_policy/>
         <sys_scope display_value="DSpoReactApp">f2ba728813da041032813092e144b01f</sys_scope>
         <sys_update_name>sys_ui_page_b22b9d771bd34e1061a9a718624bcb8b</sys_update_name>
         <sys_updated_by>sfarkas</sys_updated_by>
-        <sys_updated_on>2024-09-26 17:04:18</sys_updated_on>
+        <sys_updated_on>2025-02-19 22:03:04</sys_updated_on>
     </sys_ui_page>
+    <sys_es_latest_script action="INSERT_OR_UPDATE">
+        <id>b22b9d771bd34e1061a9a718624bcb8b</id>
+        <sys_created_by>sfarkas</sys_created_by>
+        <sys_created_on>2025-02-19 22:03:04</sys_created_on>
+        <sys_id>4437114633bf121042877cbb9d5c7b58</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>sfarkas</sys_updated_by>
+        <sys_updated_on>2025-02-19 22:03:04</sys_updated_on>
+        <table>sys_ui_page</table>
+        <use_es_latest>false</use_es_latest>
+    </sys_es_latest_script>
 </record_update>
