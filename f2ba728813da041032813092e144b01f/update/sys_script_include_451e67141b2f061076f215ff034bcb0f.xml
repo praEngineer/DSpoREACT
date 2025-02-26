@@ -682,7 +682,8 @@ ReactPOappScriptIncludePublic.prototype = Object.extendsObject(global.AbstractAj
 			error: null,
 		};
 
-		var tableName = 'core_company';
+		// var tableName = 'core_company';
+		var tableName = this.getParameter('tableName');		
 		// var tableDescriptor = new GlideTableDescriptor(tableName);
 		// java.lang.SecurityException: GlideTableDescriptor is not allowed in scoped applications
 
@@ -738,46 +739,75 @@ ReactPOappScriptIncludePublic.prototype = Object.extendsObject(global.AbstractAj
 		return JSON.stringify(allVendors); // Return a stringified JSON object
 	},
 
+	grGetValue: function(gr, colName) {
+		// Check if the key is a valid field and not a system property
+		try{
+			var rowData = null;
+			if (gr[colName] instanceof GlideElement) {
+				var grValue = gr.getValue(colName);
+				if(grValue === null || grValue === ''){
+					rowData ='';
+				}
+				else if(grValue.contains('http')){
+					rowData ='anySysId'; // url effectively means a value was not chosen from a reference table
+
+				}
+				else {
+					rowData = gr.getValue(colName); // Get the field's value
+				}
+			}		
+			else {
+				rowData = 'colName ' + colName + ' does not exist';
+			}
+			return rowData;
+		}
+		catch(errGr){
+			return errGr.message;
+		}
+
+	
+	},
+
 	getVendorData: function() {
 		var rowData = {};
 
 		try {
 			var sys_id = this.getParameter('sys_id');
-			var gr = new GlideRecord('core_company');
+			var tableName = this.getParameter('tableName');
+			var gr = new GlideRecord(tableName); // 'core_company');
 			if(!gr){
 				rowData['error'] = 'gr not initialized for core_company';
 				return JSON.stringify(rowData);				
 			}
-			// rowData['Col aSysID'] = 'Col ' + sys_id + '<br /><br />';
-			var getRslt = gr.get(sys_id); // returns true or falase
-			if (getRslt) {
-				// Iterate over all fields in the record
-				for (var key in gr) {
-					// Check if the key is a valid field and not a system property
-					if (gr[key] instanceof GlideElement) {
-						var grValue = gr.getValue(key);
-						if(grValue === null || grValue === ''){
-							rowData[key] ='';
-						}
-						else if(grValue.contains('http')){
-							rowData[key] ='anySysId'; // url effectively means a value was not chosen from a reference table
+			else {
+				rowData['Col aSysID'] = 'Col ' + sys_id + '<br /><br />';
 
-						}
-						else {
-							rowData[key] = gr.getValue(key); // Get the field's value
-						}
-					}
-				}
-				if(Object.keys(rowData).length < 1){
-					return JSON.stringify({ error: 'rowData is empty for ' + sys_id });
-				}
-			} else {
-				rowData['error'] = 'SN SI getVendordata Record not found for ' + sys_id;
+				// Restrict to a record that has vendor=true and matches the sys_id
+
+				// gr.addQuery('vendor', true);
+				// gr.addQuery('sys_id', sys_id);
+				// gr.query();
+				
+				// if (gr.next()) {
+				var getRslt = gr.get(sys_id); // returns true or falase
+				if (getRslt) {					
+					// Retrieve only these columns:
+					rowData.u_procurement_vendor_customer_no = gr.getValue('u_procurement_vendor_customer_no');
+					rowData.name = gr.getValue('name');
+					rowData.x_dosny_bit_procur_procurement_phone = gr.getValue('x_dosny_bit_procur_procurement_phone');
+					rowData.u_contact_name = gr.getValue('u_contact_name');
+					rowData.x_dosny_bit_procur_procurement_attention = gr.getValue('x_dosny_bit_procur_procurement_attention');
+					rowData.x_dosny_bit_procur_procurement_address = gr.getValue('x_dosny_bit_procur_procurement_address');
+					rowData.x_dosny_bit_procur_procurement_city_state_zip = gr.getValue('x_dosny_bit_procur_procurement_city_state_zip');
+				} else {
+					// No record found matching both sys_id and vendor=true
+					rowData['error'] = 'Record ' + sys_id + ' not found or all vendor column != true';
+				}					
 			}
 		}
 		catch (error){
-			var linkToLog = logWithLink('problem getVendorData' + error, 'error');
-			gs.addErrorMessage('ERROR: Unknown error. Error log located <a href="' + linkToLog + '">here</a>.');
+			// var linkToLog = logWithLink('problem getVendorData' + error, 'error');
+			// gs.addErrorMessage('ERROR: Unknown error. Error log located <a href="' + linkToLog + '">here</a>.');
 
 			rowData['error'] = 'caught ' + error.message;
 		}
@@ -806,7 +836,8 @@ ReactPOappScriptIncludePublic.prototype = Object.extendsObject(global.AbstractAj
 			step = 'second';
 			while (gr.next()) {
 				// Construct an object with name and sys_id for each row
-				if(gr.commodity_code.toString() > ''){
+				if(gr.commodity_code.toString() > '' 
+						&& gr.commodity_code_desc.toString() > ''){
 					step = 'second a';
 					var oneRow = {
 						commodity_code: gr.commodity_code.toString(), // Assuming there's a 'name' field in your table
@@ -852,7 +883,8 @@ ReactPOappScriptIncludePublic.prototype = Object.extendsObject(global.AbstractAj
 
 		try { // 'x_dosny_bit_procur_bit_procurement_comm_codes'; // 
 			var sys_id = this.getParameter('sys_id');
-			var gr = new GlideRecord('x_dosny_bit_procur_bit_procurement_comm_codes'); //('x_dosny_bit_procur_commodity');
+			var tableName = this.getParameter('tableName');
+			var gr = new GlideRecord(tableName); //('x_dosny_bit_procur_commodity');
 			if(!gr){
 				rowData['error'] = 'gr not initialized for x_dosny_bit_procur_commodity';
 				return JSON.stringify(rowData);				
@@ -978,14 +1010,14 @@ ReactPOappScriptIncludePublic.prototype = Object.extendsObject(global.AbstractAj
         <sys_created_by>sfarkas</sys_created_by>
         <sys_created_on>2024-07-18 16:09:02</sys_created_on>
         <sys_id>451e67141b2f061076f215ff034bcb0f</sys_id>
-        <sys_mod_count>97</sys_mod_count>
+        <sys_mod_count>111</sys_mod_count>
         <sys_name>ReactPOappScriptIncludePublic</sys_name>
         <sys_package display_value="DSpoReactApp" source="x_elsr_react_app">f2ba728813da041032813092e144b01f</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="DSpoReactApp">f2ba728813da041032813092e144b01f</sys_scope>
         <sys_update_name>sys_script_include_451e67141b2f061076f215ff034bcb0f</sys_update_name>
         <sys_updated_by>sfarkas</sys_updated_by>
-        <sys_updated_on>2025-02-20 00:52:14</sys_updated_on>
+        <sys_updated_on>2025-02-26 00:08:11</sys_updated_on>
     </sys_script_include>
     <sys_es_latest_script action="INSERT_OR_UPDATE">
         <id>451e67141b2f061076f215ff034bcb0f</id>
